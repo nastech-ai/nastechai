@@ -3,7 +3,17 @@ name: NasTech AI — Flutter Web Build
 on:
   push:
     branches: [main, master]
+    paths:
+      - 'lib/**'
+      - 'assets/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'l10n.yaml'
   workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.44.1'
 
 jobs:
   build-web:
@@ -22,6 +32,7 @@ jobs:
       - name: Install Flutter (stable)
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -60,8 +71,10 @@ jobs:
 
       - name: Commit and push build/web to repo
         run: |
-          git config user.name "NasTech AI CI"
+          git config user.name  "NasTech AI CI"
           git config user.email "ci@nastechai.com"
+          git remote set-url origin \
+            https://x-access-token:${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add -f build/web/
           git diff --staged --quiet || \
             git commit -m "chore(web): Flutter web build [com.nastechai.app] [skip ci]"

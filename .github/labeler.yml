@@ -1,0 +1,65 @@
+# Automatically applied labels based on changed file paths
+
+android:
+  - changed-files:
+      - any-glob-to-any-file: ['android/**']
+
+ios:
+  - changed-files:
+      - any-glob-to-any-file: ['ios/**']
+
+macos:
+  - changed-files:
+      - any-glob-to-any-file: ['macos/**']
+
+windows:
+  - changed-files:
+      - any-glob-to-any-file: ['windows/**']
+
+linux:
+  - changed-files:
+      - any-glob-to-any-file: ['linux/**']
+
+web:
+  - changed-files:
+      - any-glob-to-any-file: ['web/**', 'build/web/**']
+
+flutter:
+  - changed-files:
+      - any-glob-to-any-file: ['lib/**', 'pubspec.yaml', 'pubspec.lock']
+
+ui:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/features/**'
+          - 'lib/shared/**'
+          - 'lib/desktop/**'
+          - 'lib/theme/**'
+
+core:
+  - changed-files:
+      - any-glob-to-any-file: ['lib/core/**']
+
+l10n:
+  - changed-files:
+      - any-glob-to-any-file: ['lib/l10n/**', 'l10n.yaml']
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ['.github/**']
+
+assets:
+  - changed-files:
+      - any-glob-to-any-file: ['assets/**']
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ['dependencies/**']
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ['test/**']
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ['*.md', 'docs/**', 'docx/**']
