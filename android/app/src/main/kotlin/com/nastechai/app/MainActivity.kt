@@ -1,4 +1,4 @@
-package com.nastechai.nastechai
+package com.nastechai.app
 
 import android.app.Activity
 import android.content.ActivityNotFoundException

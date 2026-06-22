@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.psyche" "\0"
-            VALUE "FileDescription", "nastechai" "\0"
+            VALUE "CompanyName", "nastechai" "\0"
+            VALUE "FileDescription", "NasTech AI" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "nastechai" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.psyche. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 nastechai. All rights reserved." "\0"
             VALUE "OriginalFilename", "nastechai.exe" "\0"
-            VALUE "ProductName", "nastechai" "\0"
+            VALUE "ProductName", "NasTech AI" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

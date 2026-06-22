@@ -4,8 +4,8 @@ import BackgroundTasks
 import UserNotifications
 import ActivityKit
 
-private let backgroundRefreshIdentifier = "psyche.nastechai.background-generation.refresh"
-private let backgroundProcessingIdentifier = "psyche.nastechai.background-generation.processing"
+private let backgroundRefreshIdentifier = "com.nastechai.app.background-generation.refresh"
+private let backgroundProcessingIdentifier = "com.nastechai.app.background-generation.processing"
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
