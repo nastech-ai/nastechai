@@ -1,4 +1,4 @@
-name: Flutter Web Build & Deploy to Replit
+name: NasTech AI — Flutter Web Build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-web:
-    name: Build Flutter Web
+    name: Build Flutter Web (com.nastechai.app)
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Install Flutter (stable)
         uses: subosito/flutter-action@v2
@@ -37,12 +37,32 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --base-href /
+        run: |
+          flutter build web \
+            --release \
+            --base-href / \
+            --dart-define=APP_NAME="NasTech AI" \
+            --dart-define=APP_PACKAGE_ID="com.nastechai.app" \
+            --dart-define=APP_VERSION="${{ github.ref_name }}"
+
+      - name: Stamp build metadata
+        run: |
+          cat > build/web/build-info.json <<EOF
+          {
+            "app": "NasTech AI",
+            "packageId": "com.nastechai.app",
+            "version": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}",
+            "builtAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "branch": "${{ github.ref_name }}"
+          }
+          EOF
 
       - name: Commit and push build/web to repo
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "NasTech AI CI"
+          git config user.email "ci@nastechai.com"
           git add -f build/web/
-          git diff --staged --quiet || git commit -m "chore: update Flutter web build [skip ci]"
+          git diff --staged --quiet || \
+            git commit -m "chore(web): Flutter web build [com.nastechai.app] [skip ci]"
           git push

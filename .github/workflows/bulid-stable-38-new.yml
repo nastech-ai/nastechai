@@ -357,7 +357,7 @@ jobs:
           $issContent = @"
           #define MyAppName "NasTech AI"
           #define MyAppVersion "$env:VERSION"
-          #define MyAppPublisher "Psyche"
+          #define MyAppPublisher "NasTech AI"
           #define MyAppExeName "nastechai.exe"
           [Setup]
           AppId={{A7B8C9D0-E1F2-4A5B-8C9D-0E1F2A3B4C5D}}
@@ -525,7 +525,7 @@ jobs:
           Section: utils
           Priority: optional
           Architecture: amd64
-          Maintainer: Psyche <your@email.com>
+          Maintainer: NasTech AI <support@nastechai.com>
           Depends: libgtk-3-0, libstdc++6, libglu1-mesa, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libglib2.0-0, libc6
           Description: NasTech AI Application
            A Flutter application for Linux
@@ -624,7 +624,7 @@ jobs:
           /usr/share/icons/hicolor/256x256/apps/nastechai.png
           
           %changelog
-          * $(date "+%a %b %d %Y") Psyche <your@email.com> - ${VERSION_NUMBER}-1
+          * $(date "+%a %b %d %Y") NasTech AI <support@nastechai.com> - ${VERSION_NUMBER}-1
           - Initial RPM release
           EOF
           

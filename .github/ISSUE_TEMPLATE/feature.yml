@@ -9,7 +9,7 @@ body:
         Thank you for using NasTech AI!
         
         Before filling the form fields, please consider the following:
-        - Ensure that you have searched the [existing issues](https://github.com/Chevey339/nastechai/issues)
+        - Ensure that you have searched the [existing issues](https://github.com/nastechai/nastechai-app/issues)
         - Check if there's already a similar feature request or discussion
   - type: textarea
     attributes:
