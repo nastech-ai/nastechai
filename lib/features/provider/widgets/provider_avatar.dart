@@ -1,5 +1,5 @@
-import 'dart:io' show File;
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'provider_avatar_file_io.dart'
+    if (dart.library.html) 'provider_avatar_file_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -249,32 +249,22 @@ class ProviderAvatar extends StatelessWidget {
 
   Widget _lobehubTile(BuildContext context, String path, Color bg) {
     final cs = Theme.of(context).colorScheme;
-    final svgChild = kIsWeb
-        ? FutureBuilder<String>(
-            future: File(path).readAsString(),
-            builder: (ctx, snap) {
-              if (!snap.hasData) return const SizedBox.shrink();
-              return SvgPicture.string(
-                snap.data!,
-                width: size * 0.7,
-                height: size * 0.7,
-                fit: BoxFit.contain,
-                theme: SvgTheme(currentColor: cs.onSurface),
-                placeholderBuilder: (_) => const SizedBox.shrink(),
-              );
-            },
-          )
-        : SvgPicture.file(
-            File(path),
+    return CircleAvatar(
+      backgroundColor: bg,
+      child: FutureBuilder<String>(
+        future: File(path).readAsString(),
+        builder: (ctx, snap) {
+          if (!snap.hasData) return const SizedBox.shrink();
+          return SvgPicture.string(
+            snap.data!,
             width: size * 0.7,
             height: size * 0.7,
             fit: BoxFit.contain,
             theme: SvgTheme(currentColor: cs.onSurface),
             placeholderBuilder: (_) => const SizedBox.shrink(),
           );
-    return CircleAvatar(
-      backgroundColor: bg,
-      child: svgChild,
+        },
+      ),
     );
   }
 
