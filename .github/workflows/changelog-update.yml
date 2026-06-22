@@ -1,0 +1,160 @@
+name: Update CHANGELOG on Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    name: Append CHANGELOG entry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Resolve tag and date
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "date=$(date -u +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Collect commits since last tag
+        id: commits
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          # Find the previous tag
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${TAG}$" | head -1)
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found, using first commit"
+            RANGE="HEAD"
+          else
+            RANGE="${PREV_TAG}..HEAD"
+          fi
+          echo "prev_tag=${PREV_TAG}" >> $GITHUB_OUTPUT
+
+          # Build commit log grouped by type
+          {
+            echo "COMMITS_RAW<<EOFDELIM"
+            git log "$RANGE" --pretty=format:"- %s (%h)" --no-merges
+            echo ""
+            echo "EOFDELIM"
+          } >> $GITHUB_OUTPUT
+
+      - name: Build CHANGELOG entry
+        id: entry
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          DATE="${{ steps.meta.outputs.date }}"
+          PREV="${{ steps.commits.outputs.prev_tag }}"
+
+          # Categorise commits
+          FEATURES=$(echo "${{ steps.commits.outputs.COMMITS_RAW }}" | grep -iE "^- feat|^- add|^- new" || true)
+          FIXES=$(echo "${{ steps.commits.outputs.COMMITS_RAW }}" | grep -iE "^- fix|^- bug|^- patch" || true)
+          CHORES=$(echo "${{ steps.commits.outputs.COMMITS_RAW }}" | grep -iE "^- chore|^- ci|^- build|^- refactor|^- docs|^- style|^- test" || true)
+          OTHER=$(echo "${{ steps.commits.outputs.COMMITS_RAW }}" | grep -ivE "^- feat|^- add|^- new|^- fix|^- bug|^- patch|^- chore|^- ci|^- build|^- refactor|^- docs|^- style|^- test" || true)
+
+          ENTRY="## [${VERSION}] — ${DATE}"$'\n'
+          ENTRY+=""$'\n'
+
+          if [ -n "$FEATURES" ]; then
+            ENTRY+="### ✨ New Features"$'\n'
+            ENTRY+="${FEATURES}"$'\n\n'
+          fi
+
+          if [ -n "$FIXES" ]; then
+            ENTRY+="### 🐛 Bug Fixes"$'\n'
+            ENTRY+="${FIXES}"$'\n\n'
+          fi
+
+          if [ -n "$CHORES" ]; then
+            ENTRY+="### 🔧 Maintenance"$'\n'
+            ENTRY+="${CHORES}"$'\n\n'
+          fi
+
+          if [ -n "$OTHER" ]; then
+            ENTRY+="### 📝 Other Changes"$'\n'
+            ENTRY+="${OTHER}"$'\n\n'
+          fi
+
+          if [ -z "$FEATURES" ] && [ -z "$FIXES" ] && [ -z "$CHORES" ] && [ -z "$OTHER" ]; then
+            ENTRY+="No notable changes."$'\n\n'
+          fi
+
+          if [ -n "$PREV" ]; then
+            ENTRY+="**Full diff:** [\`${PREV}...${TAG}\`](https://github.com/${{ github.repository }}/compare/${PREV}...${TAG})"$'\n'
+          fi
+
+          {
+            echo "ENTRY<<EOFDELIM"
+            echo "$ENTRY"
+            echo "EOFDELIM"
+          } >> $GITHUB_OUTPUT
+
+      - name: Prepend entry to CHANGELOG.md
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          DATE="${{ steps.meta.outputs.date }}"
+
+          # Create CHANGELOG.md if it doesn't exist
+          if [ ! -f CHANGELOG.md ]; then
+            cat > CHANGELOG.md << 'HEADER'
+          # Changelog
+
+          All notable changes to NasTech AI are documented here.
+          Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+          ---
+
+          HEADER
+          fi
+
+          # Build the new section
+          NEW_SECTION="${{ steps.entry.outputs.ENTRY }}"
+
+          # Prepend after the header (after the first --- line) or at top if no header
+          if grep -q "^---$" CHANGELOG.md; then
+            # Insert after the first --- separator
+            awk -v section="$NEW_SECTION" '
+              /^---$/ && !done {
+                print
+                print ""
+                print section
+                done=1
+                next
+              }
+              { print }
+            ' CHANGELOG.md > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+          else
+            # Prepend at top
+            echo "$NEW_SECTION" | cat - CHANGELOG.md > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+          fi
+
+          echo "--- CHANGELOG.md preview (first 60 lines) ---"
+          head -60 CHANGELOG.md
+
+      - name: Commit and push CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "docs: update CHANGELOG for ${{ steps.meta.outputs.tag }} [skip ci]"
+          git push "https://x-access-token:${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:master
