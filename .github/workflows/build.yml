@@ -116,7 +116,7 @@ jobs:
           cd build/app/outputs/flutter-apk
           for file in app-*-release.apk; do
             abi=$(echo "$file" | sed -E 's/app-(.*)-release\.apk/\1/')
-            mv "$file" "NasTech AI_android_${VERSION}_${abi}.apk"
+            mv "$file" "NasTech_AI_android_${VERSION}_${abi}.apk"
           done
 
       - name: 🚀 发布到 Release
@@ -125,25 +125,25 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
-          files: build/app/outputs/flutter-apk/NasTech AI_android_*.apk
+          files: build/app/outputs/flutter-apk/NasTech_AI_android_*.apk
 
       - name: 📤 上传构建产物 (arm64-v8a)
         uses: actions/upload-artifact@v4
         with:
           name: Android-arm64-v8a
-          path: build/app/outputs/flutter-apk/NasTech AI_android_*_arm64-v8a.apk
+          path: build/app/outputs/flutter-apk/NasTech_AI_android_*_arm64-v8a.apk
 
       - name: 📤 上传构建产物 (armeabi-v7a)
         uses: actions/upload-artifact@v4
         with:
           name: Android-armeabi-v7a
-          path: build/app/outputs/flutter-apk/NasTech AI_android_*_armeabi-v7a.apk
+          path: build/app/outputs/flutter-apk/NasTech_AI_android_*_armeabi-v7a.apk
 
       - name: 📤 上传构建产物 (x86_64)
         uses: actions/upload-artifact@v4
         with:
           name: Android-x86_64
-          path: build/app/outputs/flutter-apk/NasTech AI_android_*_x86_64.apk
+          path: build/app/outputs/flutter-apk/NasTech_AI_android_*_x86_64.apk
 
   # iOS 构建
   ios:
@@ -185,7 +185,7 @@ jobs:
           cd build/ios/iphoneos
           mkdir Payload
           cp -r Runner.app Payload/
-          zip -r ../../../NasTech AI_ios_${VERSION}.ipa Payload
+          zip -r ../../../NasTech_AI_ios_${VERSION}.ipa Payload
 
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
@@ -193,13 +193,13 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
-          files: NasTech AI_ios_*.ipa
+          files: NasTech_AI_ios_*.ipa
 
       - name: 📤 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: iOS-IPA
-          path: NasTech AI_ios_*.ipa
+          path: NasTech_AI_ios_*.ipa
 
   # macOS 构建
   macos:
@@ -245,11 +245,11 @@ jobs:
             --window-size 800 400 \
             --icon-size 100 \
             --app-drop-link 600 185 \
-            "NasTech AI_macos_${VERSION}.dmg" \
+            "NasTech_AI_macos_${VERSION}.dmg" \
             "build/macos/Build/Products/Release/nastechai.app" || true
           # 如果 create-dmg 失败，使用简单方式
-          if [ ! -f "NasTech AI_macos_${VERSION}.dmg" ]; then
-            hdiutil create -volname NasTech AI -srcfolder build/macos/Build/Products/Release/nastechai.app -ov -format UDZO NasTech AI_macos_${VERSION}.dmg
+          if [ ! -f "NasTech_AI_macos_${VERSION}.dmg" ]; then
+            hdiutil create -volname NasTech AI -srcfolder build/macos/Build/Products/Release/nastechai.app -ov -format UDZO NasTech_AI_macos_${VERSION}.dmg
           fi
 
       - name: 🚀 发布到 Release
@@ -258,13 +258,13 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
-          files: NasTech AI_macos_*.dmg
+          files: NasTech_AI_macos_*.dmg
 
       - name: 📤 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: macOS-DMG
-          path: NasTech AI_macos_*.dmg
+          path: NasTech_AI_macos_*.dmg
 
   # Windows 构建
   windows:
@@ -320,7 +320,7 @@ jobs:
       - name: 📦 打包 ZIP
         shell: pwsh
         run: |
-          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "NasTech AI_windows_$env:VERSION.zip"
+          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "NasTech_AI_windows_$env:VERSION.zip"
 
       - name: 🔧 安装 Inno Setup
         run: choco install innosetup -y
@@ -383,7 +383,7 @@ jobs:
           DefaultDirName={autopf}\{#MyAppName}
           DefaultGroupName={#MyAppName}
           OutputDir=.
-          OutputBaseFilename=NasTech AI_windows_{#MyAppVersion}_setup
+          OutputBaseFilename=NasTech_AI_windows_{#MyAppVersion}_setup
           Compression=lzma2
           SolidCompression=yes
           WizardStyle=modern
@@ -421,20 +421,20 @@ jobs:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
           files: |
-            NasTech AI_windows_*.zip
-            NasTech AI_windows_*_setup.exe
+            NasTech_AI_windows_*.zip
+            NasTech_AI_windows_*_setup.exe
 
       - name: 📤 上传构建产物 (ZIP)
         uses: actions/upload-artifact@v4
         with:
           name: Windows-ZIP
-          path: NasTech AI_windows_*.zip
+          path: NasTech_AI_windows_*.zip
 
       - name: 📤 上传构建产物 (Installer)
         uses: actions/upload-artifact@v4
         with:
           name: Windows-Installer
-          path: NasTech AI_windows_*_setup.exe
+          path: NasTech_AI_windows_*_setup.exe
 
   # Linux 构建
   linux:
@@ -485,7 +485,7 @@ jobs:
       - name: 📦 打包 tar.gz
         run: |
           cd build/linux/x64/release/bundle
-          tar -czf ../../../../../NasTech AI_linux_${VERSION}.tar.gz .
+          tar -czf ../../../../../NasTech_AI_linux_${VERSION}.tar.gz .
 
       - name: 📦 创建 AppImage
         run: |
@@ -532,7 +532,7 @@ jobs:
           install -Dm644 "$ICON_SOURCE" "AppDir/usr/share/icons/hicolor/256x256/apps/nastechai.png"
           
           # 构建 AppImage
-          ARCH=x86_64 ./appimagetool AppDir NasTech AI_linux_${VERSION}.AppImage
+          ARCH=x86_64 ./appimagetool AppDir NasTech_AI_linux_${VERSION}.AppImage
 
       - name: 📦 创建 DEB 包
         run: |
@@ -591,7 +591,7 @@ jobs:
           chmod +x deb/opt/nastechai/nastechai.sh
           
           # 构建 DEB 包
-          dpkg-deb --build deb NasTech AI_linux_${VERSION}_amd64.deb
+          dpkg-deb --build deb NasTech_AI_linux_${VERSION}_amd64.deb
       - name: 📦 创建 RPM 包
         run: |
           # 创建 RPM 构建目录
@@ -661,12 +661,12 @@ jobs:
           
           # 构建 RPM
           rpmbuild -bb ~/rpmbuild/SPECS/nastechai.spec
-          cp ~/rpmbuild/RPMS/x86_64/nastechai-${VERSION_NUMBER}-1.*.rpm NasTech AI_linux_${VERSION}.rpm
+          cp ~/rpmbuild/RPMS/x86_64/nastechai-${VERSION_NUMBER}-1.*.rpm NasTech_AI_linux_${VERSION}.rpm
       - name: 🔍 RPM 元数据（调试）
         shell: bash
         run: |
           set -euxo pipefail
-          RPM_FILE="NasTech AI_linux_${VERSION}.rpm"
+          RPM_FILE="NasTech_AI_linux_${VERSION}.rpm"
           echo "RPM file: ${RPM_FILE}"
           cp -f ~/rpmbuild/SPECS/nastechai.spec rpm-spec.spec
           rpm -qp --info "${RPM_FILE}" | tee rpm-info.txt
@@ -685,7 +685,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          RPM_FILE="NasTech AI_linux_${VERSION}.rpm"
+          RPM_FILE="NasTech_AI_linux_${VERSION}.rpm"
           docker run --rm -v "${PWD}:/work" -w /work fedora:43 bash -lc "dnf -y install ./${RPM_FILE}"
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
@@ -695,30 +695,30 @@ jobs:
           name: ${{ github.event.inputs.release_tag }}
           prerelease: ${{ github.event.inputs.prerelease }}
           files: |
-            NasTech AI_linux_*.tar.gz
-            NasTech AI_linux_*.AppImage
-            NasTech AI_linux_*_amd64.deb
-            NasTech AI_linux_*.rpm
+            NasTech_AI_linux_*.tar.gz
+            NasTech_AI_linux_*.AppImage
+            NasTech_AI_linux_*_amd64.deb
+            NasTech_AI_linux_*.rpm
       - name: 📤 上传构建产物 (tar.gz)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-tar.gz
-          path: NasTech AI_linux_*.tar.gz
+          path: NasTech_AI_linux_*.tar.gz
 
       - name: 📤 上传构建产物 (AppImage)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-AppImage
-          path: NasTech AI_linux_*.AppImage
+          path: NasTech_AI_linux_*.AppImage
 
       - name: 📤 上传构建产物 (DEB)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-DEB
-          path: NasTech AI_linux_*_amd64.deb
+          path: NasTech_AI_linux_*_amd64.deb
 
       - name: 📤 上传构建产物 (RPM)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-RPM
-          path: NasTech AI_linux_*.rpm
+          path: NasTech_AI_linux_*.rpm
