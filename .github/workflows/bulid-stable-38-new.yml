@@ -699,7 +699,7 @@ jobs:
 
     steps:
       - name: 📥 下载所有构建产物
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
 
