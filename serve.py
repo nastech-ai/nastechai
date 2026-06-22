@@ -8,204 +8,536 @@ import base64
 PORT = 5000
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "build", "web")
 
-LOGO_B64 = (
-    "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"
-    "YII="
-)
+def _load_icon():
+    icon_paths = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "app_icon_2.png"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "web", "icons", "Icon-512.png"),
+    ]
+    for p in icon_paths:
+        if os.path.isfile(p):
+            with open(p, "rb") as f:
+                return base64.b64encode(f.read()).decode()
+    return ""
 
-PLACEHOLDER_HTML = f"""<!DOCTYPE html>
+LOGO_B64 = _load_icon()
+
+LANDING_HTML = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NasTech AI</title>
+  <title>NasTech AI — LLM Chat Client</title>
+  <meta name="description" content="NasTech AI is a powerful LLM chat client available on iOS, macOS, Windows, Linux, and Web.">
   <style>
-    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
+    :root {{
+      --red: #dc1e1e;
+      --red-dim: rgba(220,30,30,0.18);
+      --red-glow: rgba(220,30,30,0.35);
+      --bg: #080810;
+      --bg2: #0f0f1a;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f4;
+      --muted: rgba(255,255,255,0.45);
+      --radius: 18px;
+    }}
+
+    html {{ scroll-behavior: smooth; }}
+
     body {{
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      overflow-x: hidden;
     }}
-    .card {{
-      background: rgba(255,255,255,0.05);
+
+    /* NAV */
+    nav {{
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(8,8,16,0.85);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: 56px 48px;
-      max-width: 520px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 24px 64px rgba(0,0,0,.5);
+      border-bottom: 1px solid var(--border);
     }}
-    .logo {{
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      margin: 0 auto 24px;
-      display: block;
-      border: 2px solid rgba(220,30,30,0.3);
-      box-shadow: 0 0 32px rgba(220,30,30,0.2);
+    .nav-brand {{
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.1rem; font-weight: 700; color: var(--text); text-decoration: none;
+    }}
+    .nav-brand img {{
+      width: 32px; height: 32px; border-radius: 8px;
+    }}
+    .nav-links {{
+      display: flex; gap: 32px; list-style: none;
+    }}
+    .nav-links a {{
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      transition: color 0.2s;
+    }}
+    .nav-links a:hover {{ color: var(--text); }}
+
+    /* HERO */
+    .hero {{
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220,30,30,0.12) 0%, transparent 70%),
+                  linear-gradient(180deg, #080810 0%, #0f0f1a 100%);
+      position: relative;
+    }}
+    .hero::before {{
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(220,30,30,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }}
+    .hero-logo {{
+      width: 120px; height: 120px;
+      border-radius: 28px;
+      border: 2px solid rgba(220,30,30,0.4);
+      box-shadow: 0 0 60px rgba(220,30,30,0.25), 0 20px 60px rgba(0,0,0,0.6);
+      margin-bottom: 32px;
+      position: relative; z-index: 1;
+    }}
+    .badge {{
+      display: inline-block;
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(220,30,30,0.3);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
     }}
     h1 {{
-      font-size: 2rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.5px;
-      margin-bottom: 6px;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.08;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 40%, rgba(220,30,30,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }}
-    .tagline {{
-      color: #dc1e1e;
+    .hero-sub {{
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 44px;
+    }}
+
+    /* DOWNLOAD BUTTONS */
+    .dl-grid {{
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }}
+    .dl-btn {{
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 22px;
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.92rem;
       font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 28px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      cursor: pointer;
     }}
-    .divider {{
-      height: 1px;
+    .dl-btn:hover {{
       background: rgba(255,255,255,0.08);
-      margin: 0 0 28px;
+      border-color: rgba(220,30,30,0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(220,30,30,0.2);
     }}
-    p {{
-      color: rgba(255,255,255,0.55);
-      line-height: 1.8;
-      font-size: 0.95rem;
+    .dl-btn svg {{ flex-shrink: 0; }}
+    .dl-btn .btn-label {{ display: flex; flex-direction: column; text-align: left; }}
+    .dl-btn .btn-sub {{ font-size: 0.72rem; font-weight: 400; color: var(--muted); }}
+
+    .dl-btn.primary {{
+      background: var(--red);
+      border-color: transparent;
     }}
-    code {{
-      background: rgba(220,30,30,0.15);
-      color: #ff6b6b;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 0.85em;
-      font-family: 'SF Mono', 'Fira Code', monospace;
+    .dl-btn.primary:hover {{
+      background: #f02020;
+      box-shadow: 0 8px 32px rgba(220,30,30,0.4);
     }}
-    .step {{
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      text-align: left;
-      margin-top: 16px;
-      padding: 14px 16px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.05);
+
+    .version-note {{
+      font-size: 0.8rem;
+      color: var(--muted);
     }}
-    .step-num {{
-      background: #dc1e1e;
-      color: #fff;
-      font-size: 0.75rem;
+    .version-note span {{ color: rgba(220,30,30,0.8); }}
+
+    /* DIVIDER */
+    .section-divider {{
+      height: 1px;
+      background: var(--border);
+      margin: 0 40px;
+    }}
+
+    /* FEATURES */
+    .section {{
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }}
+    .section-label {{
+      text-align: center;
+      color: var(--red);
+      font-size: 0.78rem;
       font-weight: 700;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }}
+    .section-title {{
+      text-align: center;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 48px;
+    }}
+
+    .features-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }}
+    .feature-card {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }}
+    .feature-card:hover {{
+      border-color: rgba(220,30,30,0.35);
+      transform: translateY(-3px);
+    }}
+    .feature-icon {{
+      width: 44px; height: 44px;
+      background: var(--red-dim);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.4rem;
+    }}
+    .feature-card h3 {{
+      font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;
+    }}
+    .feature-card p {{
+      font-size: 0.88rem; color: var(--muted); line-height: 1.65;
+    }}
+
+    /* PLATFORMS */
+    .platforms-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }}
+    .platform-card {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }}
+    .platform-card:hover {{
+      border-color: rgba(220,30,30,0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(220,30,30,0.15);
+    }}
+    .platform-icon {{
+      font-size: 2.4rem;
+      line-height: 1;
+    }}
+    .platform-card h3 {{
+      font-size: 1rem; font-weight: 700;
+    }}
+    .platform-card p {{
+      font-size: 0.8rem; color: var(--muted);
+    }}
+    .platform-card .platform-badge {{
+      display: inline-block;
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(220,30,30,0.25);
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }}
+    .platform-badge.soon {{
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      border-color: var(--border);
+    }}
+
+    /* SCREENSHOTS / DEMO */
+    .demo-area {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      padding: 48px 32px;
+      text-align: center;
+    }}
+    .demo-screen {{
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 640px;
+      margin: 0 auto;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }}
+    .chat-msg {{
+      display: flex; gap: 12px; margin-bottom: 16px; text-align: left;
+    }}
+    .chat-msg.user {{ flex-direction: row-reverse; }}
+    .chat-avatar {{
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 700;
+    }}
+    .chat-msg.ai .chat-avatar {{ background: var(--red-dim); color: var(--red); }}
+    .chat-msg.user .chat-avatar {{ background: rgba(255,255,255,0.08); color: var(--text); }}
+    .chat-bubble {{
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      max-width: 80%;
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.6;
+    }}
+    .chat-msg.user .chat-bubble {{
+      background: var(--red-dim);
+      border-color: rgba(220,30,30,0.2);
+    }}
+
+    /* FOOTER */
+    footer {{
+      border-top: 1px solid var(--border);
+      padding: 40px 40px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 0.82rem;
     }}
-    .step p {{ margin: 0; font-size: 0.88rem; }}
-    .footer {{
-      margin-top: 32px;
-      color: rgba(255,255,255,0.2);
-      font-size: 0.78rem;
+    .footer-brand {{
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 600; color: var(--text);
+    }}
+    .footer-brand img {{ width: 24px; height: 24px; border-radius: 6px; }}
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {{
+      nav {{ padding: 0 20px; }}
+      .nav-links {{ display: none; }}
+      footer {{ flex-direction: column; text-align: center; }}
     }}
   </style>
 </head>
 <body>
-  <div class="card">
-    <img class="logo" src="data:image/png;base64,{LOGO_B64}" alt="NasTech AI Logo">
-    <h1>NasTech AI</h1>
-    <div class="tagline">LLM Chat Client</div>
-    <div class="divider"></div>
-    <p>The Flutter web app needs to be compiled first.</p>
-    <div class="step">
-      <div class="step-num">1</div>
-      <p>Push to GitHub — the <code>build-web</code> workflow compiles the app automatically.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <p>Pull the changes — <code>build/web/</code> will appear in the repo.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <p>The app loads here instantly — no other steps needed.</p>
-    </div>
-    <div class="footer">© 2026 NasTech AI · com.nastechai.app</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    {"<img src='data:image/png;base64," + LOGO_B64 + "' alt='NasTech AI'>" if LOGO_B64 else ""}
+    NasTech AI
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#platforms">Platforms</a></li>
+    <li><a href="#download">Download</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  {"<img class='hero-logo' src='data:image/png;base64," + LOGO_B64 + "' alt='NasTech AI Logo'>" if LOGO_B64 else ""}
+  <div class="badge">v1.1.17 &nbsp;·&nbsp; LLM Chat Client</div>
+  <h1>Your AI Assistant,<br>Everywhere You Are</h1>
+  <p class="hero-sub">
+    NasTech AI brings powerful large language models to every device —
+    iOS, macOS, Windows, Linux, and the web. One app, all platforms.
+  </p>
+
+  <div class="dl-grid" id="download">
+    <a class="dl-btn primary" href="https://apps.apple.com" target="_blank">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <span class="btn-label">
+        <span class="btn-sub">Download on the</span>
+        App Store
+      </span>
+    </a>
+    <a class="dl-btn" href="https://github.com/nastech-ai/nastechai/releases" target="_blank">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M21 2H3C1.9 2 1 2.9 1 4v16l4-4h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-9 9h-2V5h2v6zm0 4h-2v-2h2v2z" fill="rgba(255,255,255,0.7)"/></svg>
+      <span class="btn-label">
+        <span class="btn-sub">Download for</span>
+        Windows &amp; Linux
+      </span>
+    </a>
+    <a class="dl-btn" href="https://github.com/nastech-ai/nastechai/releases" target="_blank">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <span class="btn-label">
+        <span class="btn-sub">Download for</span>
+        macOS
+      </span>
+    </a>
+    <a class="dl-btn" href="#web-app">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      <span class="btn-label">
+        <span class="btn-sub">Open in browser</span>
+        Web App
+      </span>
+    </a>
   </div>
+  <p class="version-note">Version <span>1.1.17</span> · Free &amp; open source · com.nastechai.app</p>
+</section>
+
+<!-- FEATURES -->
+<div class="section-divider"></div>
+<div class="section" id="features">
+  <p class="section-label">What's inside</p>
+  <h2 class="section-title">Everything you need from an AI client</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Multiple LLM Providers</h3>
+      <p>Connect to OpenAI, SiliconFlow, and other providers. Switch models on the fly without losing your conversation.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <h3>Conversation Management</h3>
+      <p>Organise chats into folders, search across all history, and continue from any device with cloud sync.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>Custom Assistants</h3>
+      <p>Create assistants with custom system prompts, avatars, and model settings for any use case.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <h3>MCP Support</h3>
+      <p>Model Context Protocol integration lets your AI use tools, search the web, and run code.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎙️</div>
+      <h3>Voice & TTS</h3>
+      <p>Talk to your assistant using voice input. Listen to responses with built-in text-to-speech.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Fully Cross-Platform</h3>
+      <p>One codebase, five platforms. iOS, macOS, Windows, Linux, and the web — all with a native feel.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO CHAT -->
+<div class="section">
+  <div class="demo-area">
+    <p class="section-label" style="margin-bottom:8px;">See it in action</p>
+    <h2 class="section-title" style="margin-bottom:32px;">Intelligent conversations, beautifully simple</h2>
+    <div class="demo-screen">
+      <div class="chat-msg ai">
+        <div class="chat-avatar">N</div>
+        <div class="chat-bubble">Hello! I'm your NasTech AI assistant. How can I help you today?</div>
+      </div>
+      <div class="chat-msg user">
+        <div class="chat-avatar">You</div>
+        <div class="chat-bubble">Explain how neural networks learn in simple terms.</div>
+      </div>
+      <div class="chat-msg ai">
+        <div class="chat-avatar">N</div>
+        <div class="chat-bubble">Think of a neural network like a student taking an exam. It makes a guess, checks how wrong it was, and adjusts what it knows — millions of times — until the guesses get really good. That process of adjusting is called <em>backpropagation</em>, and the measuring of wrongness is the <em>loss function</em>.</div>
+      </div>
+      <div class="chat-msg user">
+        <div class="chat-avatar">You</div>
+        <div class="chat-bubble">That makes sense. Can you give a code example too?</div>
+      </div>
+      <div class="chat-msg ai">
+        <div class="chat-avatar">N</div>
+        <div class="chat-bubble">Of course! Here's a minimal PyTorch example showing the training loop… ✨</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLATFORMS -->
+<div class="section-divider"></div>
+<div class="section" id="platforms">
+  <p class="section-label">Available on</p>
+  <h2 class="section-title">Every platform, one great experience</h2>
+  <div class="platforms-grid">
+    <a class="platform-card" href="https://apps.apple.com" target="_blank">
+      <div class="platform-icon">📱</div>
+      <h3>iOS</h3>
+      <p>iPhone &amp; iPad</p>
+      <span class="platform-badge">App Store</span>
+    </a>
+    <a class="platform-card" href="https://github.com/nastech-ai/nastechai/releases" target="_blank">
+      <div class="platform-icon">🍎</div>
+      <h3>macOS</h3>
+      <p>Apple Silicon &amp; Intel</p>
+      <span class="platform-badge">GitHub Releases</span>
+    </a>
+    <a class="platform-card" href="https://github.com/nastech-ai/nastechai/releases" target="_blank">
+      <div class="platform-icon">🪟</div>
+      <h3>Windows</h3>
+      <p>Windows 10 &amp; 11</p>
+      <span class="platform-badge">GitHub Releases</span>
+    </a>
+    <a class="platform-card" href="https://github.com/nastech-ai/nastechai/releases" target="_blank">
+      <div class="platform-icon">🐧</div>
+      <h3>Linux</h3>
+      <p>Ubuntu, Debian &amp; more</p>
+      <span class="platform-badge">GitHub Releases</span>
+    </a>
+    <a class="platform-card" href="#web-app" id="web-app">
+      <div class="platform-icon">🌐</div>
+      <h3>Web</h3>
+      <p>Any modern browser</p>
+      <span class="platform-badge">{"Available" if False else "Building..."}</span>
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    {"<img src='data:image/png;base64," + LOGO_B64 + "' alt=''>" if LOGO_B64 else ""}
+    NasTech AI
+  </div>
+  <span>© 2026 NasTech AI · com.nastechai.app · v1.1.17</span>
+  <a href="https://github.com/nastech-ai/nastechai" target="_blank" style="color:var(--muted);text-decoration:none;">GitHub ↗</a>
+</footer>
+
 </body>
 </html>"""
 
@@ -224,9 +556,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 if not os.path.isdir(WEB_DIR):
-    print(f"WARNING: build/web not found — serving placeholder.")
+    print(f"WARNING: build/web not found — serving landing page.")
     tmp = tempfile.mkdtemp()
-    pathlib.Path(tmp, "index.html").write_text(PLACEHOLDER_HTML)
+    pathlib.Path(tmp, "index.html").write_text(LANDING_HTML)
     WEB_DIR = tmp
 
 os.chdir(WEB_DIR)
