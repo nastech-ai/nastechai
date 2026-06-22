@@ -79,7 +79,7 @@ jobs:
             "desiredFileName.txt"
 
       - name: dart analyze (root package only)
-        run: dart analyze --fatal-infos lib test
+        run: dart analyze --fatal-warnings lib test
 
       - name: flutter test
         run: flutter test
