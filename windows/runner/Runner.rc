@@ -93,7 +93,7 @@ BEGIN
             VALUE "FileDescription", "NasTech AI" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "nastechai" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 nastechai. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 nastechai. All rights reserved." "\0"
             VALUE "OriginalFilename", "nastechai.exe" "\0"
             VALUE "ProductName", "NasTech AI" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

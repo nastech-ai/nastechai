@@ -28,7 +28,7 @@ class _SponsorPageState extends State<SponsorPage> {
   Future<_SponsorData> _fetchSponsors() async {
     final ts = DateTime.now().millisecondsSinceEpoch;
     final uri = Uri.parse(
-      'https://nastechai.psycheas.top/sponsor.json?nastechai=$ts',
+      'https://nastechai.com/api/sponsor.json?t=$ts',
     );
     try {
       final res = await http.get(uri).timeout(const Duration(seconds: 12));
@@ -74,8 +74,8 @@ class _SponsorPageState extends State<SponsorPage> {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final wechatQrUrl = isDark
-        ? 'https://c.img.dasctf.com/LightPicture/2025/10/ee10ae78acbd01f3.png'
-        : 'https://c.img.dasctf.com/LightPicture/2025/10/6ba60ac0f2f8e2b4.png';
+        ? 'https://nastechai.com/assets/qr-dark.png'
+        : 'https://nastechai.com/assets/qr-light.png';
     return Scaffold(
       appBar: AppBar(
         leading: Tooltip(
@@ -101,7 +101,7 @@ class _SponsorPageState extends State<SponsorPage> {
                 icon: Lucide.Heart,
                 label: l10n.sponsorPageAfdianTitle,
                 onTap: () async {
-                  final uri = Uri.parse('https://afdian.com/a/nastechai');
+                  final uri = Uri.parse('https://nastechai.com/sponsor');
                   if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   }

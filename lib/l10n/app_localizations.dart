@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// No description provided for @sponsorPageAfdianSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'afdian.com/a/nastechai'**
+  /// **'nastechai.com/sponsor'**
   String get sponsorPageAfdianSubtitle;
 
   /// No description provided for @sponsorPageWeChatTitle.

@@ -26,7 +26,7 @@
 [![Download on the App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/us/app/nastechai/id6752122930)
 
 
-🔗 [下载最新版本](https://github.com/Chevey339/nastechai/releases/latest)
+🔗 [下载最新版本](https://github.com/nastechai/nastechai-app/releases/latest)
 
 🔗 [TestFlight](https://testflight.apple.com/join/erbGGykR) 参与测试版体验。
 
@@ -59,7 +59,7 @@
 
 - ✅ Android
 - ✅ iOS
-- ✅ Harmony ([nastechai-ohos](https://github.com/Chevey339/nastechai-ohos))
+- ✅ Harmony ([nastechai-ohos](https://github.com/nastechai/nastechai-ohos))
 - ✅ Windows
 - ✅ macOS
 - ✅ Linux
@@ -82,7 +82,7 @@
 
 如果你喜欢这个项目，可以给个Star ⭐
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Chevey339/nastechai&type=Date)](https://star-history.com/#Chevey339/nastechai&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=nastechai/nastechai-app&type=Date)](https://star-history.com/#nastechai/nastechai-app&Date)
 
 ## 📄 许可证
 
@@ -90,7 +90,7 @@
 
 ## 📞 联系我们
 
-- Issue: [GitHub Issues](https://github.com/Chevey339/nastechai/issues)
+- Issue: [GitHub Issues](https://github.com/nastechai/nastechai-app/issues)
 
 ---
 

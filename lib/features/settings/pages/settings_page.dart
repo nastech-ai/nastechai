@@ -357,7 +357,7 @@ class SettingsPage extends StatelessWidget {
                 icon: Lucide.Library,
                 label: l10n.settingsPageDocs,
                 onTap: () async {
-                  final uri = Uri.parse('https://nastechai.psycheas.top/');
+                  final uri = Uri.parse('https://nastechai.com/');
                   if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   }

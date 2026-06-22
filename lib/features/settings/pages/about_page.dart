@@ -400,7 +400,7 @@ class _AboutPageState extends State<AboutPage> {
                 icon: Lucide.Earth,
                 label: l10n.aboutPageWebsite,
                 onTap: () async {
-                  final uri = Uri.parse('https://nastechai.psycheas.top/');
+                  final uri = Uri.parse('https://nastechai.com/');
                   if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   }
@@ -411,7 +411,7 @@ class _AboutPageState extends State<AboutPage> {
                 context,
                 svgAsset: 'assets/icons/github.svg',
                 label: l10n.aboutPageGithub,
-                onTap: () => _openUrl('https://github.com/Chevey339/nastechai'),
+                onTap: () => _openUrl('https://github.com/nastechai/nastechai-app'),
               ),
               _iosDivider(context),
               _iosNavRow(
@@ -419,7 +419,7 @@ class _AboutPageState extends State<AboutPage> {
                 icon: Lucide.FileText,
                 label: l10n.aboutPageLicense,
                 onTap: () => _openUrl(
-                  'https://github.com/Chevey339/nastechai/blob/master/LICENSE',
+                  'https://nastechai.com/license',
                 ),
               ),
               _iosDivider(context),

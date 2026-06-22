@@ -1,6 +1,6 @@
 import '../../providers/settings_provider.dart';
 
-const String _openRouterAppReferer = 'https://github.com/Chevey339/nastechai';
+const String _openRouterAppReferer = 'https://nastechai.com';
 const String _openRouterAppTitle = 'NasTech AI';
 const String _openRouterAppCategories = 'general-chat';
 
