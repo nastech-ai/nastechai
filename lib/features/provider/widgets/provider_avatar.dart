@@ -1,5 +1,6 @@
 import 'provider_avatar_file_io.dart'
     if (dart.library.html) 'provider_avatar_file_web.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -58,14 +59,9 @@ class ProviderAvatar extends StatelessWidget {
         future: AvatarCache.getPath(value),
         builder: (ctx, snap) {
           final p = snap.data;
-          if (p != null && File(p).existsSync()) {
+          if (!kIsWeb && p != null && fileExistsSync(p)) {
             return ClipOval(
-              child: Image(
-                image: FileImage(File(p)),
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-              ),
+              child: _fileImageWidget(p, size),
             );
           }
           return ClipOval(
@@ -83,17 +79,16 @@ class ProviderAvatar extends StatelessWidget {
         },
       );
     } else if (type == 'file' && value != null && value.isNotEmpty) {
-      final fixed = SandboxPathResolver.fix(value);
-      final f = File(fixed);
-      if (f.existsSync()) {
-        avatar = ClipOval(
-          child: Image(
-            image: FileImage(f),
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-          ),
-        );
+      if (!kIsWeb) {
+        final fixed = SandboxPathResolver.fix(value);
+        if (fileExistsSync(fixed)) {
+          avatar = ClipOval(child: _fileImageWidget(fixed, size));
+        } else {
+          avatar = _brandOrInitial(
+            context,
+            cfg.name.isNotEmpty ? cfg.name : displayName,
+          );
+        }
       } else {
         avatar = _brandOrInitial(
           context,
@@ -101,7 +96,6 @@ class ProviderAvatar extends StatelessWidget {
         );
       }
     } else if (type == 'icon' && value != null && value.isNotEmpty) {
-      // 校验资源在白名单中，防止非法值
       final asset = BrandAssets.selectableAssetOrNull(value);
       if (asset == null) {
         avatar = _brandOrInitial(
@@ -144,6 +138,10 @@ class ProviderAvatar extends StatelessWidget {
       customBorder: const CircleBorder(),
       child: child,
     );
+  }
+
+  Widget _fileImageWidget(String path, double sz) {
+    return fileImageWidget(path, sz);
   }
 
   Widget _brandOrInitial(BuildContext context, String name) {
@@ -192,8 +190,6 @@ class ProviderAvatar extends StatelessWidget {
     );
   }
 
-  // 优先彩色版本（{name}-color.svg），不存在则回退单色（{name}.svg）。
-  // 用户已显式指定 -color/-text 变体时按原样请求。
   Future<String?> _resolveLobehubPath(String iconName) async {
     final n = iconName.trim().toLowerCase();
     if (n.isEmpty) return null;
@@ -206,8 +202,6 @@ class ProviderAvatar extends StatelessWidget {
     return AvatarCache.getPath(BrandAssets.lobehubIconUrl(n));
   }
 
-  // 同步命中已缓存的 LobeHub 图标路径，命中则可直接渲染、避免 FutureBuilder 闪烁。
-  // 镜像 _resolveLobehubPath 的彩色优先/单色回退顺序。
   String? _peekLobehubPath(String iconName) {
     final n = iconName.trim().toLowerCase();
     if (n.isEmpty) return null;
@@ -226,20 +220,18 @@ class ProviderAvatar extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? Colors.white10 : cs.primary.withValues(alpha: 0.1);
-    // 缓存命中时同步渲染，避免每次 rebuild 都经历 FutureBuilder 的 loading 态。
     final cached = _peekLobehubPath(iconName);
     if (cached != null) {
       return _lobehubTile(context, cached, bg);
     }
     return FutureBuilder<String?>(
-      // 优先彩色版本，回退单色；复用头像缓存（下载并缓存 SVG，失败返回 null）
       future: _resolveLobehubPath(iconName),
       builder: (ctx, snap) {
         if (snap.connectionState != ConnectionState.done) {
           return CircleAvatar(backgroundColor: bg);
         }
         final p = snap.data;
-        if (p == null || !File(p).existsSync()) {
+        if (p == null || (!kIsWeb && !fileExistsSync(p))) {
           return _brandOrInitial(context, fallbackName);
         }
         return _lobehubTile(context, p, bg);
@@ -252,7 +244,7 @@ class ProviderAvatar extends StatelessWidget {
     return CircleAvatar(
       backgroundColor: bg,
       child: FutureBuilder<String>(
-        future: File(path).readAsString(),
+        future: readFileAsString(path),
         builder: (ctx, snap) {
           if (!snap.hasData) return const SizedBox.shrink();
           return SvgPicture.string(

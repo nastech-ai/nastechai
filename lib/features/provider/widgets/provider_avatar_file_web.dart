@@ -1,22 +1,9 @@
-import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
-class File {
-  final String path;
-  File(this.path);
-  bool existsSync() => false;
-  Future<String> readAsString() async => '';
-}
+bool fileExistsSync(String path) => false;
 
-class FileImage extends ImageProvider<FileImage> {
-  final File file;
-  const FileImage(this.file);
+Future<String> readFileAsString(String path) async => '';
 
-  @override
-  Future<FileImage> obtainKey(ImageConfiguration configuration) async => this;
-
-  @override
-  ImageStreamCompleter loadImage(FileImage key, ImageDecoderCallback decode) {
-    throw UnsupportedError('FileImage is not supported on web');
-  }
+Widget fileImageWidget(String path, double size) {
+  return const SizedBox.shrink();
 }
