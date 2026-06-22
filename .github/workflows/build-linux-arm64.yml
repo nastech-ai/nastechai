@@ -55,11 +55,18 @@ jobs:
           sudo apt-get install -y libkeybinder-3.0-dev 2>/dev/null || true
           sudo apt-get install -y libayatana-appindicator3-dev 2>/dev/null || true
 
-      - name: 🐦 安装 Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+      - name: 🐦 安装 Flutter (手动 git clone — ARM64)
+        run: |
+          git clone https://github.com/flutter/flutter.git \
+            --branch stable --depth 1 \
+            $HOME/flutter
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+
+      - name: 🔧 Flutter precache & doctor
+        run: |
+          export PATH="$HOME/flutter/bin:$PATH"
+          flutter precache --linux
+          flutter doctor -v
 
       - name: 📝 Inject fallback
         shell: bash
