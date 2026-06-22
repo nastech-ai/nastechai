@@ -468,13 +468,17 @@ jobs:
 
       - name: Install system deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends \
             clang cmake ninja-build pkg-config libgtk-3-dev \
             libgstreamer1.0-dev libunwind-dev libgstreamer-plugins-base1.0-dev \
-            gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
-            rpm patchelf libfuse2 file \
-            libkeybinder-3.0-dev libayatana-appindicator3-dev
+            gstreamer1.0-plugins-good \
+            rpm patchelf file
+          sudo apt-get install -y libfuse2 2>/dev/null || \
+            sudo apt-get install -y libfuse2t64 2>/dev/null || true
+          sudo apt-get install -y gstreamer1.0-plugins-bad 2>/dev/null || true
+          sudo apt-get install -y libkeybinder-3.0-dev 2>/dev/null || true
+          sudo apt-get install -y libayatana-appindicator3-dev 2>/dev/null || true
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -696,13 +700,17 @@ jobs:
 
       - name: Install system deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends \
             clang cmake ninja-build pkg-config libgtk-3-dev \
             libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-            gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
-            rpm patchelf file \
-            libkeybinder-3.0-dev libayatana-appindicator3-dev
+            gstreamer1.0-plugins-good \
+            rpm patchelf file libunwind-dev
+          sudo apt-get install -y libfuse2 2>/dev/null || \
+            sudo apt-get install -y libfuse2t64 2>/dev/null || true
+          sudo apt-get install -y gstreamer1.0-plugins-bad 2>/dev/null || true
+          sudo apt-get install -y libkeybinder-3.0-dev 2>/dev/null || true
+          sudo apt-get install -y libayatana-appindicator3-dev 2>/dev/null || true
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
