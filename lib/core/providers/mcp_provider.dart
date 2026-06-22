@@ -777,8 +777,8 @@ class McpProvider extends ChangeNotifier {
 
       // In-memory builtin server path
       if (server.transport == McpTransportType.inmemory) {
-        final engine = NasTech AIFetchMcpServerEngine();
-        final transport = NasTech AIInMemoryClientTransport(engine);
+        final engine = NastechAIFetchMcpServerEngine();
+        final transport = NastechAIInMemoryClientTransport(engine);
         final client = mcp.McpClient.createClient(clientConfig);
         await client.connect(transport);
         _clients[id] = client;

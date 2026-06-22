@@ -34,8 +34,8 @@ String buildFunctionCallToolName(String serverName, String toolName) {
 /// Returns the connected client and a stop() to dispose both ends.
 Future<({mcp.Client client, Future<void> Function() stop})>
 startFetchMcpInMemory() async {
-  final server = NasTech AIFetchMcpServerEngine();
-  final transport = NasTech AIInMemoryClientTransport(server);
+  final server = NastechAIFetchMcpServerEngine();
+  final transport = NastechAIInMemoryClientTransport(server);
 
   final client = mcp.McpClient.createClient(
     mcp.McpClient.simpleConfig(name: 'NasTech AI App', version: '1.0.0'),

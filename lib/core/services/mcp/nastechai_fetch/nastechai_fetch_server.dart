@@ -20,14 +20,14 @@ import 'package:mcp_client/mcp_client.dart' as mcp;
 /// isolate as the Flutter app and connect to a standard mcp.Client via an
 /// in-memory ClientTransport.
 
-class NasTech AIFetchRequestPayload {
+class NastechAIFetchRequestPayload {
   final Uri url;
   final Map<String, String> headers;
 
-  NasTech AIFetchRequestPayload({required this.url, Map<String, String>? headers})
+  NastechAIFetchRequestPayload({required this.url, Map<String, String>? headers})
     : headers = headers ?? const {};
 
-  static NasTech AIFetchRequestPayload parse(Object? args) {
+  static NastechAIFetchRequestPayload parse(Object? args) {
     if (args is! Map) {
       throw ArgumentError(
         'Invalid arguments: expected object with url[, headers]',
@@ -47,15 +47,15 @@ class NasTech AIFetchRequestPayload {
         headers[k.toString()] = v.toString();
       });
     }
-    return NasTech AIFetchRequestPayload(url: uri, headers: headers);
+    return NastechAIFetchRequestPayload(url: uri, headers: headers);
   }
 }
 
-class NasTech AIFetcher {
+class NastechAIFetcher {
   static const _defaultUA =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-  static Future<http.Response> _fetch(NasTech AIFetchRequestPayload payload) async {
+  static Future<http.Response> _fetch(NastechAIFetchRequestPayload payload) async {
     try {
       final merged = <String, String>{
         'User-Agent': _defaultUA,
@@ -74,7 +74,7 @@ class NasTech AIFetcher {
   }
 
   static Future<Map<String, dynamic>> html(
-    NasTech AIFetchRequestPayload payload,
+    NastechAIFetchRequestPayload payload,
   ) async {
     try {
       final resp = await _fetch(payload);
@@ -86,7 +86,7 @@ class NasTech AIFetcher {
   }
 
   static Future<Map<String, dynamic>> json(
-    NasTech AIFetchRequestPayload payload,
+    NastechAIFetchRequestPayload payload,
   ) async {
     try {
       final resp = await _fetch(payload);
@@ -99,7 +99,7 @@ class NasTech AIFetcher {
   }
 
   static Future<Map<String, dynamic>> txt(
-    NasTech AIFetchRequestPayload payload,
+    NastechAIFetchRequestPayload payload,
   ) async {
     try {
       final resp = await _fetch(payload);
@@ -115,7 +115,7 @@ class NasTech AIFetcher {
   }
 
   static Future<Map<String, dynamic>> markdown(
-    NasTech AIFetchRequestPayload payload,
+    NastechAIFetchRequestPayload payload,
   ) async {
     try {
       final resp = await _fetch(payload);
@@ -145,7 +145,7 @@ class NasTech AIFetcher {
 }
 
 /// Minimal JSON-RPC server for MCP that serves @nastechai/fetch tools.
-class NasTech AIFetchMcpServerEngine {
+class NastechAIFetchMcpServerEngine {
   bool _closed = false;
 
   Future<dynamic> handleMessage(dynamic message) async {
@@ -197,24 +197,24 @@ class NasTech AIFetchMcpServerEngine {
               ? (params['arguments'] as Map).cast<String, dynamic>()
               : <String, dynamic>{};
 
-          NasTech AIFetchRequestPayload payload;
+          NastechAIFetchRequestPayload payload;
           try {
-            payload = NasTech AIFetchRequestPayload.parse(arguments);
+            payload = NastechAIFetchRequestPayload.parse(arguments);
           } catch (e) {
-            return _ok(id, result: NasTech AIFetcher._err(e.toString()));
+            return _ok(id, result: NastechAIFetcher._err(e.toString()));
           }
 
           if (name == 'fetch_html') {
-            return _ok(id, result: await NasTech AIFetcher.html(payload));
+            return _ok(id, result: await NastechAIFetcher.html(payload));
           }
           if (name == 'fetch_markdown') {
-            return _ok(id, result: await NasTech AIFetcher.markdown(payload));
+            return _ok(id, result: await NastechAIFetcher.markdown(payload));
           }
           if (name == 'fetch_txt') {
-            return _ok(id, result: await NasTech AIFetcher.txt(payload));
+            return _ok(id, result: await NastechAIFetcher.txt(payload));
           }
           if (name == 'fetch_json') {
-            return _ok(id, result: await NasTech AIFetcher.json(payload));
+            return _ok(id, result: await NastechAIFetcher.json(payload));
           }
           return _error(id, code: -32101, message: 'Tool not found: $name');
 
@@ -292,13 +292,13 @@ class NasTech AIFetchMcpServerEngine {
 }
 
 /// In-memory ClientTransport that directly invokes the local server engine.
-class NasTech AIInMemoryClientTransport implements mcp.ClientTransport {
-  final NasTech AIFetchMcpServerEngine _server;
+class NastechAIInMemoryClientTransport implements mcp.ClientTransport {
+  final NastechAIFetchMcpServerEngine _server;
   final _messageController = StreamController<dynamic>.broadcast();
   final _closeCompleter = Completer<void>();
   bool _closed = false;
 
-  NasTech AIInMemoryClientTransport(this._server);
+  NastechAIInMemoryClientTransport(this._server);
 
   @override
   Stream<dynamic> get onMessage => _messageController.stream;
