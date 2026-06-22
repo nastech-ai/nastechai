@@ -80,7 +80,7 @@ jobs:
       - name: 📦 打包 tar.gz
         run: |
           cd build/linux/arm64/release/bundle
-          tar -czf ../../../../../Kelivo_linux_${VERSION}_arm64.tar.gz .
+          tar -czf ../../../../../NasTech AI_linux_${VERSION}_arm64.tar.gz .
 
       - name: 📦 创建 AppImage
         run: |
@@ -101,21 +101,21 @@ jobs:
           HERE=${SELF%/*}
           export PATH="${HERE}/usr/bin:${PATH}"
           export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-          exec "${HERE}/usr/bin/kelivo" "$@"
+          exec "${HERE}/usr/bin/nastechai" "$@"
           EOF
           chmod +x AppDir/AppRun
 
           # 创建 desktop 文件
-          cat > AppDir/kelivo.desktop << EOF
+          cat > AppDir/nastechai.desktop << EOF
           [Desktop Entry]
-          Name=Kelivo
-          Exec=kelivo
-          Icon=kelivo
+          Name=NasTech AI
+          Exec=nastechai
+          Icon=nastechai
           Type=Application
           Categories=Utility;
           EOF
 
-          ICON_SOURCE="linux/kelivo.png"
+          ICON_SOURCE="linux/nastechai.png"
           if [ ! -f "$ICON_SOURCE" ]; then
             ICON_SOURCE="assets/app_icon.png"
           fi
@@ -123,47 +123,47 @@ jobs:
             echo "❌ Icon source not found"
             exit 1
           fi
-          install -Dm644 "$ICON_SOURCE" AppDir/kelivo.png
-          install -Dm644 "$ICON_SOURCE" "AppDir/usr/share/icons/hicolor/256x256/apps/kelivo.png"
+          install -Dm644 "$ICON_SOURCE" AppDir/nastechai.png
+          install -Dm644 "$ICON_SOURCE" "AppDir/usr/share/icons/hicolor/256x256/apps/nastechai.png"
 
           # 构建 AppImage
-          ARCH=aarch64 ./appimagetool AppDir Kelivo_linux_${VERSION}_arm64.AppImage
+          ARCH=aarch64 ./appimagetool AppDir NasTech AI_linux_${VERSION}_arm64.AppImage
 
       - name: 📦 创建 DEB 包
         run: |
           # 创建 DEB 目录结构
           mkdir -p deb/DEBIAN
-          mkdir -p deb/opt/kelivo
+          mkdir -p deb/opt/nastechai
           mkdir -p deb/usr/share/applications
           mkdir -p deb/usr/share/icons/hicolor/256x256/apps
 
           # 复制文件
-          cp -r build/linux/arm64/release/bundle/* deb/opt/kelivo/
+          cp -r build/linux/arm64/release/bundle/* deb/opt/nastechai/
 
           # 创建 control 文件
           cat > deb/DEBIAN/control << EOF
-          Package: kelivo
+          Package: nastechai
           Version: ${VERSION_NUMBER}
           Section: utils
           Priority: optional
           Architecture: arm64
           Maintainer: Psyche <your@email.com>
           Depends: libgtk-3-0, libstdc++6, libglu1-mesa, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libglib2.0-0, libc6
-          Description: Kelivo Application
+          Description: NasTech AI Application
            A Flutter application for Linux
           EOF
 
           # 创建 desktop 文件
-          cat > deb/usr/share/applications/kelivo.desktop << EOF
+          cat > deb/usr/share/applications/nastechai.desktop << EOF
           [Desktop Entry]
-          Name=Kelivo
-          Exec=/opt/kelivo/kelivo
-          Icon=kelivo
+          Name=NasTech AI
+          Exec=/opt/nastechai/nastechai
+          Icon=nastechai
           Type=Application
           Categories=Utility;
           EOF
 
-          ICON_SOURCE="linux/kelivo.png"
+          ICON_SOURCE="linux/nastechai.png"
           if [ ! -f "$ICON_SOURCE" ]; then
             ICON_SOURCE="assets/app_icon.png"
           fi
@@ -171,18 +171,18 @@ jobs:
             echo "❌ Icon source not found"
             exit 1
           fi
-          install -Dm644 "$ICON_SOURCE" deb/usr/share/icons/hicolor/256x256/apps/kelivo.png
+          install -Dm644 "$ICON_SOURCE" deb/usr/share/icons/hicolor/256x256/apps/nastechai.png
 
           # 创建启动脚本
-          cat > deb/opt/kelivo/kelivo.sh << 'EOF'
+          cat > deb/opt/nastechai/nastechai.sh << 'EOF'
           #!/bin/bash
           cd "$(dirname "$0")"
-          ./kelivo "$@"
+          ./nastechai "$@"
           EOF
-          chmod +x deb/opt/kelivo/kelivo.sh
+          chmod +x deb/opt/nastechai/nastechai.sh
 
           # 构建 DEB 包
-          dpkg-deb --build deb Kelivo_linux_${VERSION}_arm64.deb
+          dpkg-deb --build deb NasTech AI_linux_${VERSION}_arm64.deb
 
       - name: 📦 创建 RPM 包
         run: |
@@ -190,9 +190,9 @@ jobs:
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
           # 创建源码目录
-          mkdir -p kelivo-${VERSION_NUMBER}
-          cp -r build/linux/arm64/release/bundle/* kelivo-${VERSION_NUMBER}/
-          ICON_SOURCE="linux/kelivo.png"
+          mkdir -p nastechai-${VERSION_NUMBER}
+          cp -r build/linux/arm64/release/bundle/* nastechai-${VERSION_NUMBER}/
+          ICON_SOURCE="linux/nastechai.png"
           if [ ! -f "$ICON_SOURCE" ]; then
             ICON_SOURCE="assets/app_icon.png"
           fi
@@ -200,15 +200,15 @@ jobs:
             echo "❌ Icon source not found"
             exit 1
           fi
-          cp "$ICON_SOURCE" kelivo-${VERSION_NUMBER}/kelivo.png
-          tar -czf ~/rpmbuild/SOURCES/kelivo-${VERSION_NUMBER}.tar.gz kelivo-${VERSION_NUMBER}
+          cp "$ICON_SOURCE" nastechai-${VERSION_NUMBER}/nastechai.png
+          tar -czf ~/rpmbuild/SOURCES/nastechai-${VERSION_NUMBER}.tar.gz nastechai-${VERSION_NUMBER}
 
           # 创建 spec 文件
-          cat > ~/rpmbuild/SPECS/kelivo.spec << EOF
-          Name:           kelivo
+          cat > ~/rpmbuild/SPECS/nastechai.spec << EOF
+          Name:           nastechai
           Version:        ${VERSION_NUMBER}
           Release:        1%{?dist}
-          Summary:        Kelivo Application
+          Summary:        NasTech AI Application
           License:        MIT
           Source0:        %{name}-%{version}.tar.gz
           BuildArch:      aarch64
@@ -221,26 +221,26 @@ jobs:
           %setup -q
 
           %install
-          mkdir -p %{buildroot}/opt/kelivo
-          cp -r * %{buildroot}/opt/kelivo/
+          mkdir -p %{buildroot}/opt/nastechai
+          cp -r * %{buildroot}/opt/nastechai/
 
           mkdir -p %{buildroot}/usr/share/applications
-          cat > %{buildroot}/usr/share/applications/kelivo.desktop << 'DESKTOPEOF'
+          cat > %{buildroot}/usr/share/applications/nastechai.desktop << 'DESKTOPEOF'
           [Desktop Entry]
-          Name=Kelivo
-          Exec=/opt/kelivo/kelivo
-          Icon=kelivo
+          Name=NasTech AI
+          Exec=/opt/nastechai/nastechai
+          Icon=nastechai
           Type=Application
           Categories=Utility;
           DESKTOPEOF
 
           mkdir -p %{buildroot}/usr/share/icons/hicolor/256x256/apps
-          cp kelivo.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/kelivo.png
+          cp nastechai.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/nastechai.png
 
           %files
-          /opt/kelivo/*
-          /usr/share/applications/kelivo.desktop
-          /usr/share/icons/hicolor/256x256/apps/kelivo.png
+          /opt/nastechai/*
+          /usr/share/applications/nastechai.desktop
+          /usr/share/icons/hicolor/256x256/apps/nastechai.png
 
           %changelog
           * $(date "+%a %b %d %Y") Psyche <your@email.com> - ${VERSION_NUMBER}-1
@@ -248,15 +248,15 @@ jobs:
           EOF
 
           # 构建 RPM
-          rpmbuild -bb ~/rpmbuild/SPECS/kelivo.spec
-          cp ~/rpmbuild/RPMS/aarch64/kelivo-${VERSION_NUMBER}-1.*.rpm Kelivo_linux_${VERSION}_arm64.rpm
+          rpmbuild -bb ~/rpmbuild/SPECS/nastechai.spec
+          cp ~/rpmbuild/RPMS/aarch64/nastechai-${VERSION_NUMBER}-1.*.rpm NasTech AI_linux_${VERSION}_arm64.rpm
       - name: 🔍 RPM 元数据（调试）
         shell: bash
         run: |
           set -euxo pipefail
-          RPM_FILE="Kelivo_linux_${VERSION}_arm64.rpm"
+          RPM_FILE="NasTech AI_linux_${VERSION}_arm64.rpm"
           echo "RPM file: ${RPM_FILE}"
-          cp -f ~/rpmbuild/SPECS/kelivo.spec rpm-spec.spec
+          cp -f ~/rpmbuild/SPECS/nastechai.spec rpm-spec.spec
           rpm -qp --info "${RPM_FILE}" | tee rpm-info.txt
           rpm -qp --requires "${RPM_FILE}" | tee rpm-requires.txt
           rpm -qp --provides "${RPM_FILE}" | tee rpm-provides.txt
@@ -273,7 +273,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          RPM_FILE="Kelivo_linux_${VERSION}_arm64.rpm"
+          RPM_FILE="NasTech AI_linux_${VERSION}_arm64.rpm"
           docker run --rm -v "${PWD}:/work" -w /work fedora:43 bash -lc "dnf -y install ./${RPM_FILE}"
 
       - name: 🚀 发布到 Release
@@ -284,31 +284,31 @@ jobs:
           name: ${{ github.event.inputs.release_tag }}
           prerelease: ${{ github.event.inputs.prerelease }}
           files: |
-            Kelivo_linux_*_arm64.tar.gz
-            Kelivo_linux_*_arm64.AppImage
-            Kelivo_linux_*_arm64.deb
-            Kelivo_linux_*_arm64.rpm
+            NasTech AI_linux_*_arm64.tar.gz
+            NasTech AI_linux_*_arm64.AppImage
+            NasTech AI_linux_*_arm64.deb
+            NasTech AI_linux_*_arm64.rpm
 
       - name: 📤 上传构建产物 (tar.gz)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-ARM64-tar.gz
-          path: Kelivo_linux_*_arm64.tar.gz
+          path: NasTech AI_linux_*_arm64.tar.gz
 
       - name: 📤 上传构建产物 (AppImage)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-ARM64-AppImage
-          path: Kelivo_linux_*_arm64.AppImage
+          path: NasTech AI_linux_*_arm64.AppImage
 
       - name: 📤 上传构建产物 (DEB)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-ARM64-DEB
-          path: Kelivo_linux_*_arm64.deb
+          path: NasTech AI_linux_*_arm64.deb
 
       - name: 📤 上传构建产物 (RPM)
         uses: actions/upload-artifact@v4
         with:
           name: Linux-ARM64-RPM
-          path: Kelivo_linux_*_arm64.rpm
+          path: NasTech AI_linux_*_arm64.rpm

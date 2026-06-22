@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:Kelivo/core/services/search/providers/serper_search_service.dart';
-import 'package:Kelivo/core/services/search/search_service.dart';
-import 'package:Kelivo/utils/brand_assets.dart';
+import 'package:NasTech AI/core/services/search/providers/serper_search_service.dart';
+import 'package:NasTech AI/core/services/search/search_service.dart';
+import 'package:NasTech AI/utils/brand_assets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -97,12 +97,12 @@ void main() {
       );
 
       final result = await service.search(
-        query: 'kelivo',
+        query: 'nastechai',
         commonOptions: const SearchCommonOptions(timeout: 1000),
         serviceOptions: SerperOptions(id: 'serper-1', apiKey: 'sk-test'),
       );
 
-      expect(jsonDecode(captured!.body), {'q': 'kelivo'});
+      expect(jsonDecode(captured!.body), {'q': 'nastechai'});
       expect(result.items, isEmpty);
     });
 
@@ -113,7 +113,7 @@ void main() {
 
       expect(
         () => service.search(
-          query: 'kelivo',
+          query: 'nastechai',
           commonOptions: const SearchCommonOptions(timeout: 1000),
           serviceOptions: SerperOptions(id: 'serper-1', apiKey: 'sk-test'),
         ),

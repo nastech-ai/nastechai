@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:Kelivo/core/services/search/providers/grok_search_service.dart';
-import 'package:Kelivo/core/services/search/search_service.dart';
-import 'package:Kelivo/utils/brand_assets.dart';
+import 'package:NasTech AI/core/services/search/providers/grok_search_service.dart';
+import 'package:NasTech AI/core/services/search/search_service.dart';
+import 'package:NasTech AI/utils/brand_assets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -46,7 +46,7 @@ void main() {
                   'content': [
                     {
                       'type': 'output_text',
-                      'text': 'Kelivo is a Flutter chat client.',
+                      'text': 'NasTech AI is a Flutter chat client.',
                       'annotations': [
                         {
                           'type': 'url_citation',
@@ -75,7 +75,7 @@ void main() {
       );
 
       final result = await service.search(
-        query: 'kelivo',
+        query: 'nastechai',
         commonOptions: const SearchCommonOptions(resultSize: 1, timeout: 1000),
         serviceOptions: GrokOptions(
           id: 'grok-1',
@@ -93,7 +93,7 @@ void main() {
         'model': 'grok-test',
         'input': [
           {'role': 'system', 'content': 'Search carefully.'},
-          {'role': 'user', 'content': 'kelivo'},
+          {'role': 'user', 'content': 'nastechai'},
         ],
         'tools': [
           {'type': 'web_search'},
@@ -102,7 +102,7 @@ void main() {
         'store': false,
         'stream': false,
       });
-      expect(result.answer, 'Kelivo is a Flutter chat client.');
+      expect(result.answer, 'NasTech AI is a Flutter chat client.');
       expect(result.items, hasLength(1));
       expect(result.items.single.title, 'Example A');
       expect(result.items.single.url, 'https://example.com/a');
@@ -132,7 +132,7 @@ void main() {
       );
 
       await service.search(
-        query: 'kelivo',
+        query: 'nastechai',
         commonOptions: const SearchCommonOptions(timeout: 1000),
         serviceOptions: GrokOptions(
           id: 'grok-1',
@@ -169,7 +169,7 @@ void main() {
       );
 
       await service.search(
-        query: 'kelivo',
+        query: 'nastechai',
         commonOptions: const SearchCommonOptions(timeout: 1000),
         serviceOptions: GrokOptions(id: 'grok-1', apiKey: 'xai-test'),
       );
@@ -199,7 +199,7 @@ void main() {
                     'content': [
                       {
                         'type': 'output_text',
-                        'text': 'Kelivo is a Flutter chat client.',
+                        'text': 'NasTech AI is a Flutter chat client.',
                       },
                     ],
                   },
@@ -211,7 +211,7 @@ void main() {
         );
 
         final result = await service.search(
-          query: 'kelivo',
+          query: 'nastechai',
           commonOptions: const SearchCommonOptions(
             resultSize: 1,
             timeout: 1000,
@@ -219,7 +219,7 @@ void main() {
           serviceOptions: GrokOptions(id: 'grok-1', apiKey: 'xai-test'),
         );
 
-        expect(result.answer, 'Kelivo is a Flutter chat client.');
+        expect(result.answer, 'NasTech AI is a Flutter chat client.');
         expect(result.items, hasLength(1));
         expect(result.items.single.title, 'https://example.com/a');
         expect(result.items.single.url, 'https://example.com/a');
@@ -238,7 +238,7 @@ void main() {
 
       expect(
         () => service.search(
-          query: 'kelivo',
+          query: 'nastechai',
           commonOptions: const SearchCommonOptions(timeout: 1000),
           serviceOptions: GrokOptions(id: 'grok-1', apiKey: ''),
         ),
@@ -260,7 +260,7 @@ void main() {
 
       expect(
         () => service.search(
-          query: 'kelivo',
+          query: 'nastechai',
           commonOptions: const SearchCommonOptions(timeout: 1000),
           serviceOptions: GrokOptions(id: 'grok-1', apiKey: 'xai-test'),
         ),

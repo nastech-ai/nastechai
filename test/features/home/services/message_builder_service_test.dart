@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:Kelivo/core/models/assistant.dart';
-import 'package:Kelivo/core/models/chat_message.dart';
-import 'package:Kelivo/core/models/conversation.dart';
-import 'package:Kelivo/core/services/chat/chat_service.dart';
-import 'package:Kelivo/features/home/services/message_builder_service.dart';
+import 'package:NasTech AI/core/models/assistant.dart';
+import 'package:NasTech AI/core/models/chat_message.dart';
+import 'package:NasTech AI/core/models/conversation.dart';
+import 'package:NasTech AI/core/services/chat/chat_service.dart';
+import 'package:NasTech AI/features/home/services/message_builder_service.dart';
 
 class _FakeBuildContext implements BuildContext {
   @override
@@ -332,7 +332,7 @@ void main() {
             {
               'id': 'call_1',
               'name': 'lookup',
-              'arguments': {'query': 'Kelivo'},
+              'arguments': {'query': 'NasTech AI'},
               'content': '{"result":"ok"}',
               'metadata': {
                 'anthropic': {
@@ -346,7 +346,7 @@ void main() {
                       'type': 'tool_use',
                       'id': 'call_1',
                       'name': 'lookup',
-                      'input': {'query': 'Kelivo'},
+                      'input': {'query': 'NasTech AI'},
                     },
                   ],
                 },
@@ -354,7 +354,7 @@ void main() {
                   'part': {
                     'functionCall': {
                       'name': 'lookup',
-                      'args': {'query': 'Kelivo'},
+                      'args': {'query': 'NasTech AI'},
                     },
                     'thoughtSignature': 'sig-gemini',
                   },
@@ -368,7 +368,7 @@ void main() {
 
       final apiMessages = service.buildApiMessages(
         messages: [
-          _message(id: 'u1', role: 'user', content: '查 Kelivo'),
+          _message(id: 'u1', role: 'user', content: '查 NasTech AI'),
           _message(id: 'a1', role: 'assistant', content: '查到了。'),
         ],
         versionSelections: const {},

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:Kelivo/l10n/app_localizations.dart';
-import 'package:Kelivo/shared/widgets/custom_bottom_sheet.dart';
-import 'package:Kelivo/shared/widgets/ios_tactile.dart';
-import 'package:Kelivo/shared/widgets/qq_group_join_sheet.dart';
+import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:NasTech AI/shared/widgets/custom_bottom_sheet.dart';
+import 'package:NasTech AI/shared/widgets/ios_tactile.dart';
+import 'package:NasTech AI/shared/widgets/qq_group_join_sheet.dart';
 
 Widget _opener() {
   return MaterialApp(
@@ -43,8 +43,8 @@ void main() {
         expect(find.byType(Dialog), findsNothing);
         // Title (sheet header) + both group rows.
         expect(find.text('Join our QQ Group'), findsOneWidget);
-        expect(find.text('Kelivo Group 1'), findsOneWidget);
-        expect(find.text('Kelivo Group 2'), findsOneWidget);
+        expect(find.text('NasTech AI Group 1'), findsOneWidget);
+        expect(find.text('NasTech AI Group 2'), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
@@ -62,8 +62,8 @@ void main() {
 
       expect(find.byType(Dialog), findsOneWidget);
       expect(find.byKey(CustomBottomSheet.panelKey), findsNothing);
-      expect(find.text('Kelivo Group 1'), findsOneWidget);
-      expect(find.text('Kelivo Group 2'), findsOneWidget);
+      expect(find.text('NasTech AI Group 1'), findsOneWidget);
+      expect(find.text('NasTech AI Group 2'), findsOneWidget);
 
       // Close via the X button.
       await tester.tap(find.byType(IosIconButton));

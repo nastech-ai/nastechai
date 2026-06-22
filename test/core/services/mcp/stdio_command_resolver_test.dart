@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:Kelivo/core/services/mcp/stdio_command_resolver.dart';
+import 'package:NasTech AI/core/services/mcp/stdio_command_resolver.dart';
 
 void main() {
   group('mergePathValues', () {

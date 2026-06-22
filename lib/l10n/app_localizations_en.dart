@@ -395,7 +395,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sponsorPageAfdianTitle => 'Afdian';
 
   @override
-  String get sponsorPageAfdianSubtitle => 'afdian.com/a/kelivo';
+  String get sponsorPageAfdianSubtitle => 'afdian.com/a/nastechai';
 
   @override
   String get sponsorPageWeChatTitle => 'WeChat Sponsor';
@@ -1002,7 +1002,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iosBackgroundLimitNoticeBody =>
-      'These options use Apple-supported background time, BackgroundTasks, notifications, and Live Activities. They improve continuity but cannot force iOS to keep Kelivo running forever.';
+      'These options use Apple-supported background time, BackgroundTasks, notifications, and Live Activities. They improve continuity but cannot force iOS to keep NasTech AI running forever.';
 
   @override
   String get iosBackgroundUnsupportedLiveActivity =>
@@ -1030,7 +1030,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Notifications not allowed';
 
   @override
-  String get iosBackgroundGenerationActiveTitle => 'Kelivo is generating';
+  String get iosBackgroundGenerationActiveTitle => 'NasTech AI is generating';
 
   @override
   String get iosBackgroundGenerationActiveDetail =>
@@ -1089,7 +1089,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Assistant reply has been generated';
 
   @override
-  String get androidBackgroundNotificationTitle => 'Kelivo is running';
+  String get androidBackgroundNotificationTitle => 'NasTech AI is running';
 
   @override
   String get androidBackgroundNotificationText =>
@@ -3731,7 +3731,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutPageEasterEggButton => 'Nice!';
 
   @override
-  String get aboutPageAppName => 'Kelivo';
+  String get aboutPageAppName => 'NasTech AI';
 
   @override
   String get aboutPageAppDescription => 'Open-source AI Assistant';
@@ -3789,10 +3789,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutPageJoinQQGroup => 'Join our QQ Group';
 
   @override
-  String get aboutPageQQGroupOne => 'Kelivo Group 1';
+  String get aboutPageQQGroupOne => 'NasTech AI Group 1';
 
   @override
-  String get aboutPageQQGroupTwo => 'Kelivo Group 2';
+  String get aboutPageQQGroupTwo => 'NasTech AI Group 2';
 
   @override
   String get aboutPageJoinDiscord => 'Join us on Discord';
@@ -4443,7 +4443,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsShare => 'Kelivo - Open Source AI Assistant';
+  String get settingsShare => 'NasTech AI - Open Source AI Assistant';
 
   @override
   String get searchProviderBingLocalDescription =>

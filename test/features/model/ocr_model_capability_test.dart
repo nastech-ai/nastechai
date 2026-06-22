@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:Kelivo/core/providers/settings_provider.dart';
-import 'package:Kelivo/features/model/utils/ocr_model_capability.dart';
+import 'package:NasTech AI/core/providers/settings_provider.dart';
+import 'package:NasTech AI/features/model/utils/ocr_model_capability.dart';
 
 Future<void> _waitForSettingsLoad() async {
   for (var i = 0; i < 25; i++) {

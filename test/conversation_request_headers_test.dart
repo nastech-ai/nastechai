@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:Kelivo/features/home/services/message_generation_service.dart';
+import 'package:NasTech AI/features/home/services/message_generation_service.dart';
 
 void main() {
   group('conversation request headers', () {

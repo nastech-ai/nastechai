@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// No description provided for @sponsorPageAfdianSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'afdian.com/a/kelivo'**
+  /// **'afdian.com/a/nastechai'**
   String get sponsorPageAfdianSubtitle;
 
   /// No description provided for @sponsorPageWeChatTitle.
@@ -1952,7 +1952,7 @@ abstract class AppLocalizations {
   /// No description provided for @iosBackgroundLimitNoticeBody.
   ///
   /// In en, this message translates to:
-  /// **'These options use Apple-supported background time, BackgroundTasks, notifications, and Live Activities. They improve continuity but cannot force iOS to keep Kelivo running forever.'**
+  /// **'These options use Apple-supported background time, BackgroundTasks, notifications, and Live Activities. They improve continuity but cannot force iOS to keep NasTech AI running forever.'**
   String get iosBackgroundLimitNoticeBody;
 
   /// No description provided for @iosBackgroundUnsupportedLiveActivity.
@@ -2000,7 +2000,7 @@ abstract class AppLocalizations {
   /// No description provided for @iosBackgroundGenerationActiveTitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo is generating'**
+  /// **'NasTech AI is generating'**
   String get iosBackgroundGenerationActiveTitle;
 
   /// No description provided for @iosBackgroundGenerationActiveDetail.
@@ -2102,7 +2102,7 @@ abstract class AppLocalizations {
   /// No description provided for @androidBackgroundNotificationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo is running'**
+  /// **'NasTech AI is running'**
   String get androidBackgroundNotificationTitle;
 
   /// No description provided for @androidBackgroundNotificationText.
@@ -6983,7 +6983,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutPageAppName.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo'**
+  /// **'NasTech AI'**
   String get aboutPageAppName;
 
   /// No description provided for @aboutPageAppDescription.
@@ -7091,13 +7091,13 @@ abstract class AppLocalizations {
   /// No description provided for @aboutPageQQGroupOne.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo Group 1'**
+  /// **'NasTech AI Group 1'**
   String get aboutPageQQGroupOne;
 
   /// No description provided for @aboutPageQQGroupTwo.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo Group 2'**
+  /// **'NasTech AI Group 2'**
   String get aboutPageQQGroupTwo;
 
   /// No description provided for @aboutPageJoinDiscord.
@@ -8249,7 +8249,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsShare.
   ///
   /// In en, this message translates to:
-  /// **'Kelivo - Open Source AI Assistant'**
+  /// **'NasTech AI - Open Source AI Assistant'**
   String get settingsShare;
 
   /// No description provided for @searchProviderBingLocalDescription.

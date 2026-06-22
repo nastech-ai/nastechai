@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:Kelivo/core/providers/settings_provider.dart';
-import 'package:Kelivo/core/services/api/chat_api_service.dart';
+import 'package:NasTech AI/core/providers/settings_provider.dart';
+import 'package:NasTech AI/core/services/api/chat_api_service.dart';
 
 ProviderConfig _geminiConfig(String baseUrl) {
   return ProviderConfig(
@@ -100,7 +100,7 @@ void main() {
           request.response.headers.set('Transfer-Encoding', 'chunked');
           request.response.write(
             'data: ${jsonEncode(_streamChunk([
-              _functionCallPart(name: 'google_search', args: {'query': 'Kelivo fetch'}),
+              _functionCallPart(name: 'google_search', args: {'query': 'NasTech AI fetch'}),
             ]))}\n\n',
           );
           request.response.write(
@@ -156,7 +156,7 @@ void main() {
             {
               'role': 'user',
               'content':
-                  'Search the web for the Kelivo fetch server docs, then summarize them.',
+                  'Search the web for the NasTech AI fetch server docs, then summarize them.',
             },
           ],
           tools: const [
@@ -206,7 +206,7 @@ void main() {
             request.response.headers.set('Transfer-Encoding', 'chunked');
             request.response.write(
               'data: ${jsonEncode(_streamChunk([
-                _functionCallPart(name: 'google_search', args: {'query': 'Kelivo fetch'}, thoughtSignature: 'sig-google-search'),
+                _functionCallPart(name: 'google_search', args: {'query': 'NasTech AI fetch'}, thoughtSignature: 'sig-google-search'),
               ]))}\n\n',
             );
             request.response.write('data: [DONE]');
@@ -241,7 +241,7 @@ void main() {
             {
               'role': 'user',
               'content':
-                  'Search the web for the Kelivo fetch server docs, then summarize them.',
+                  'Search the web for the NasTech AI fetch server docs, then summarize them.',
             },
           ],
           tools: const [
@@ -288,7 +288,7 @@ void main() {
           request.response.headers.set('Transfer-Encoding', 'chunked');
           request.response.write(
             'data: ${jsonEncode(_streamChunk([
-              _functionCallPart(name: 'search_docs', args: {'query': 'Kelivo fetch'}, thoughtSignature: 'sig-search-docs'),
+              _functionCallPart(name: 'search_docs', args: {'query': 'NasTech AI fetch'}, thoughtSignature: 'sig-search-docs'),
               _functionCallPart(name: 'fetch_markdown', args: {'url': 'https://example.com'}),
             ], finishReason: 'STOP'))}\n\n',
           );
@@ -694,7 +694,7 @@ void main() {
           ),
           modelId: 'gemini-3.1-pro-preview',
           messages: const [
-            {'role': 'user', 'content': '查 Kelivo'},
+            {'role': 'user', 'content': '查 NasTech AI'},
             {
               'role': 'assistant',
               'content': '\n\n',

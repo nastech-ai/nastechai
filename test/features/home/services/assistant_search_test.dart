@@ -3,15 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:Kelivo/core/models/assistant.dart';
-import 'package:Kelivo/core/providers/assistant_provider.dart';
-import 'package:Kelivo/core/providers/mcp_provider.dart';
-import 'package:Kelivo/core/providers/settings_provider.dart';
-import 'package:Kelivo/core/services/chat/chat_service.dart';
-import 'package:Kelivo/core/services/mcp/mcp_tool_service.dart';
-import 'package:Kelivo/core/services/search/search_tool_service.dart';
-import 'package:Kelivo/features/home/services/message_builder_service.dart';
-import 'package:Kelivo/features/home/services/tool_handler_service.dart';
+import 'package:NasTech AI/core/models/assistant.dart';
+import 'package:NasTech AI/core/providers/assistant_provider.dart';
+import 'package:NasTech AI/core/providers/mcp_provider.dart';
+import 'package:NasTech AI/core/providers/settings_provider.dart';
+import 'package:NasTech AI/core/services/chat/chat_service.dart';
+import 'package:NasTech AI/core/services/mcp/mcp_tool_service.dart';
+import 'package:NasTech AI/core/services/search/search_tool_service.dart';
+import 'package:NasTech AI/features/home/services/message_builder_service.dart';
+import 'package:NasTech AI/features/home/services/tool_handler_service.dart';
 
 class _FakeBuildContext implements BuildContext {
   @override

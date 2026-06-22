@@ -129,7 +129,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     final l10n = AppLocalizations.of(context)!;
     bool isUserAdded(String key) {
       const fixed = {
-        'KelivoIN',
+        'NasTech AIIN',
         'OpenAI',
         'Gemini',
         'SiliconFlow',
@@ -817,7 +817,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       children: [
-        if (widget.keyName.toLowerCase() == 'kelivoin') ...[
+        if (widget.keyName.toLowerCase() == 'nastechaiin') ...[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
@@ -981,7 +981,7 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
         // Top iOS-style section card for key settings
         _iosSectionCard(
           children: [
-            if (widget.keyName.toLowerCase() != 'kelivoin')
+            if (widget.keyName.toLowerCase() != 'nastechaiin')
               _providerKindRow(context),
             _providerGroupRow(context, groupName: groupName),
             _iosRow(
@@ -1187,12 +1187,12 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
           label: l10n.providerDetailPageNameLabel,
           controller: _nameCtrl,
           hint: widget.displayName,
-          enabled: widget.keyName.toLowerCase() != 'kelivoin',
+          enabled: widget.keyName.toLowerCase() != 'nastechaiin',
           onChanged: (_) => _save(),
         ),
         const SizedBox(height: 12),
         if (!(_kind == ProviderKind.google && _vertexAI)) ...[
-          if (widget.keyName.toLowerCase() != 'kelivoin' &&
+          if (widget.keyName.toLowerCase() != 'nastechaiin' &&
               !_multiKeyEnabled) ...[
             _inputRow(
               context,
@@ -1223,12 +1223,12 @@ class _ProviderDetailPageState extends State<ProviderDetailPage> {
               widget.keyName,
               displayName: widget.displayName,
             ).baseUrl,
-            enabled: widget.keyName.toLowerCase() != 'kelivoin',
+            enabled: widget.keyName.toLowerCase() != 'nastechaiin',
             onChanged: (_) => _save(),
           ),
         ],
         if (_kind == ProviderKind.openai &&
-            widget.keyName.toLowerCase() != 'kelivoin' &&
+            widget.keyName.toLowerCase() != 'nastechaiin' &&
             !_useResp) ...[
           const SizedBox(height: 12),
           _inputRow(
