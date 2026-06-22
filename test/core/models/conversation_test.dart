@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/conversation.dart';
+import 'package:nastech_ai/core/models/conversation.dart';
 
 void main() {
   group('Conversation chat suggestions compatibility', () {

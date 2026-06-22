@@ -1,4 +1,4 @@
-import 'package:NasTech AI/features/home/widgets/chat_input_overlay_layout.dart';
+import 'package:nastech_ai/features/home/widgets/chat_input_overlay_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

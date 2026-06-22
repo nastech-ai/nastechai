@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/desktop/desktop_settings_page.dart';
+import 'package:nastech_ai/desktop/desktop_settings_page.dart';
 
 void main() {
   test('Desktop provider grouping compiles', () {

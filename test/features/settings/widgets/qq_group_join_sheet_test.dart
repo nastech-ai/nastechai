@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/l10n/app_localizations.dart';
-import 'package:NasTech AI/shared/widgets/custom_bottom_sheet.dart';
-import 'package:NasTech AI/shared/widgets/ios_tactile.dart';
-import 'package:NasTech AI/shared/widgets/qq_group_join_sheet.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
+import 'package:nastech_ai/shared/widgets/custom_bottom_sheet.dart';
+import 'package:nastech_ai/shared/widgets/ios_tactile.dart';
+import 'package:nastech_ai/shared/widgets/qq_group_join_sheet.dart';
 
 Widget _opener() {
   return MaterialApp(

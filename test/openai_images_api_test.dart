@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/services/api/chat_api_service.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/services/api/chat_api_service.dart';
 
 ProviderConfig _openAiConfig(String baseUrl, {bool useResponseApi = false}) {
   return ProviderConfig(

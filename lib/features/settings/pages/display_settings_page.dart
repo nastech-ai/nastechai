@@ -16,7 +16,7 @@ import '../../../shared/widgets/ios_switch.dart';
 import '../../../core/services/haptics.dart';
 import 'package:file_picker/file_picker.dart';
 import 'google_fonts_picker_page.dart';
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
 enum _FontTarget { app, code }
 

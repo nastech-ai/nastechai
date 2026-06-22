@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:NasTech AI/core/services/search/providers/querit_search_service.dart';
-import 'package:NasTech AI/core/services/search/search_service.dart';
-import 'package:NasTech AI/utils/brand_assets.dart';
+import 'package:nastech_ai/core/services/search/providers/querit_search_service.dart';
+import 'package:nastech_ai/core/services/search/search_service.dart';
+import 'package:nastech_ai/utils/brand_assets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';

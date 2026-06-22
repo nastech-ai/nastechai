@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/features/settings/services/debug_conversation_factory.dart';
+import 'package:nastech_ai/features/settings/services/debug_conversation_factory.dart';
 
 void main() {
   group('DebugConversationFactory', () {

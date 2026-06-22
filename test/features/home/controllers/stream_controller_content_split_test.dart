@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/services/api/chat_api_service.dart';
-import 'package:NasTech AI/core/services/chat/chat_service.dart';
-import 'package:NasTech AI/features/chat/widgets/chat_message_widget.dart'
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/services/api/chat_api_service.dart';
+import 'package:nastech_ai/core/services/chat/chat_service.dart';
+import 'package:nastech_ai/features/chat/widgets/chat_message_widget.dart'
     show ToolUIPart;
-import 'package:NasTech AI/features/home/controllers/stream_controller.dart';
+import 'package:nastech_ai/features/home/controllers/stream_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> _waitForSettingsLoad() async {

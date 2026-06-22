@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/backup.dart';
-import 'package:NasTech AI/core/services/backup/s3_client.dart';
+import 'package:nastech_ai/core/models/backup.dart';
+import 'package:nastech_ai/core/services/backup/s3_client.dart';
 
 S3Config _config(HttpServer server) {
   return S3Config(

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/features/home/controllers/chat_controller.dart';
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/features/home/controllers/chat_controller.dart';
 
 ChatMessage _assistantMessage({
   required String id,

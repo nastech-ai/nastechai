@@ -1,5 +1,5 @@
-import 'package:NasTech AI/core/services/tts/tts_playback_models.dart';
-import 'package:NasTech AI/core/services/tts/tts_text_chunker.dart';
+import 'package:nastech_ai/core/services/tts/tts_playback_models.dart';
+import 'package:nastech_ai/core/services/tts/tts_text_chunker.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

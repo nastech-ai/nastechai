@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:NasTech AI/features/chat/utils/thinking_tag_parser.dart';
+import 'package:nastech_ai/features/chat/utils/thinking_tag_parser.dart';
 
 void main() {
   group('ThinkingTagParser', () {

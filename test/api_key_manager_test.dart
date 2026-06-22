@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/api_keys.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/services/api_key_manager.dart';
+import 'package:nastech_ai/core/models/api_keys.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/services/api_key_manager.dart';
 
 ApiKeyConfig _key(String id, String value) {
   return ApiKeyConfig(id: id, key: value, createdAt: 1, updatedAt: 1);

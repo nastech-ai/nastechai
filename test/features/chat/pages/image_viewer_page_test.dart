@@ -1,5 +1,5 @@
-import 'package:NasTech AI/features/chat/pages/image_viewer_page.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/features/chat/pages/image_viewer_page.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/features/home/services/chat_suggestion_service.dart';
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/features/home/services/chat_suggestion_service.dart';
 
 void main() {
   group('ChatSuggestionService.parseSuggestions', () {

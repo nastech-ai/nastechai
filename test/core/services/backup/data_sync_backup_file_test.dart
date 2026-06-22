@@ -7,9 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:NasTech AI/core/models/backup.dart';
-import 'package:NasTech AI/core/services/backup/data_sync.dart';
-import 'package:NasTech AI/core/services/chat/chat_service.dart';
+import 'package:nastech_ai/core/models/backup.dart';
+import 'package:nastech_ai/core/services/backup/data_sync.dart';
+import 'package:nastech_ai/core/services/chat/chat_service.dart';
 
 class _FakePathProviderPlatform extends PathProviderPlatform {
   _FakePathProviderPlatform(this.root);

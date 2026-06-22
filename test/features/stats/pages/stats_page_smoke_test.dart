@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/features/stats/models/stats_models.dart';
-import 'package:NasTech AI/features/stats/pages/stats_page.dart';
-import 'package:NasTech AI/features/stats/widgets/stats_heatmap.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/features/stats/models/stats_models.dart';
+import 'package:nastech_ai/features/stats/pages/stats_page.dart';
+import 'package:nastech_ai/features/stats/widgets/stats_heatmap.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 
 Widget _harness(StatsSnapshot snapshot) {
   return ChangeNotifierProvider(

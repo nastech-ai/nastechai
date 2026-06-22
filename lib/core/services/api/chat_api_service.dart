@@ -13,7 +13,7 @@ import '../../utils/openai_model_compat.dart';
 import '../network/dio_http_client.dart';
 import 'google_service_account_auth.dart';
 import '../../services/api_key_manager.dart';
-import 'package:NasTech AI/secrets/fallback.dart';
+import 'package:nastech_ai/secrets/fallback.dart';
 import '../../../utils/markdown_media_sanitizer.dart';
 import '../../../utils/unicode_sanitizer.dart';
 import 'builtin_tools.dart';

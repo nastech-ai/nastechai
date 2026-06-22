@@ -5,19 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/providers/tts_provider.dart';
-import 'package:NasTech AI/core/services/api/chat_api_service.dart';
-import 'package:NasTech AI/core/services/chat/chat_service.dart';
-import 'package:NasTech AI/features/chat/widgets/chat_message_widget.dart';
-import 'package:NasTech AI/features/home/controllers/stream_controller.dart'
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/providers/tts_provider.dart';
+import 'package:nastech_ai/core/services/api/chat_api_service.dart';
+import 'package:nastech_ai/core/services/chat/chat_service.dart';
+import 'package:nastech_ai/features/chat/widgets/chat_message_widget.dart';
+import 'package:nastech_ai/features/home/controllers/stream_controller.dart'
     as home_stream;
-import 'package:NasTech AI/features/home/services/ask_user_interaction_service.dart';
-import 'package:NasTech AI/icons/lucide_adapter.dart';
-import 'package:NasTech AI/features/home/services/tool_approval_service.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
-import 'package:NasTech AI/shared/widgets/ios_tactile.dart';
+import 'package:nastech_ai/features/home/services/ask_user_interaction_service.dart';
+import 'package:nastech_ai/icons/lucide_adapter.dart';
+import 'package:nastech_ai/features/home/services/tool_approval_service.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
+import 'package:nastech_ai/shared/widgets/ios_tactile.dart';
 
 SettingsProvider _createSettings(ChatMessageBackgroundStyle style) {
   final rawStyle = switch (style) {

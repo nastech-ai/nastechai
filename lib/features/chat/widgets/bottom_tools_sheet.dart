@@ -12,7 +12,7 @@ import '../../home/widgets/world_book_sheet.dart';
 import '../../instruction_injection/pages/instruction_injection_page.dart';
 import '../../world_book/pages/world_book_page.dart';
 import '../../model/widgets/ocr_prompt_sheet.dart';
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
 class BottomToolsSheet extends StatelessWidget {
   const BottomToolsSheet({

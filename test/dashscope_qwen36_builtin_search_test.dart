@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/services/api/builtin_tools.dart';
-import 'package:NasTech AI/core/services/api/chat_api_service.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/services/api/builtin_tools.dart';
+import 'package:nastech_ai/core/services/api/chat_api_service.dart';
 
 ProviderConfig _dashScopeConfig({
   required bool useResponseApi,

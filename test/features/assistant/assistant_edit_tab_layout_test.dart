@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/features/assistant/utils/assistant_edit_tab_layout.dart';
+import 'package:nastech_ai/features/assistant/utils/assistant_edit_tab_layout.dart';
 
 void main() {
   group('assistant edit tab layout', () {

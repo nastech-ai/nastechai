@@ -1,4 +1,4 @@
-import 'package:NasTech AI/utils/brand_assets.dart';
+import 'package:nastech_ai/utils/brand_assets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

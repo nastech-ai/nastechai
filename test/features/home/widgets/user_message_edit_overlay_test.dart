@@ -1,7 +1,7 @@
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/features/home/widgets/user_message_edit_overlay.dart';
-import 'package:NasTech AI/icons/lucide_adapter.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/features/home/widgets/user_message_edit_overlay.dart';
+import 'package:nastech_ai/icons/lucide_adapter.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';

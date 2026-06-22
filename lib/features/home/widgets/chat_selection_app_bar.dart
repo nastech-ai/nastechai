@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/ios_checkbox.dart';

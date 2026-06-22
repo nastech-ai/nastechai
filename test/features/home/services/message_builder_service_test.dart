@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/assistant.dart';
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/core/models/conversation.dart';
-import 'package:NasTech AI/core/services/chat/chat_service.dart';
-import 'package:NasTech AI/features/home/services/message_builder_service.dart';
+import 'package:nastech_ai/core/models/assistant.dart';
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/core/models/conversation.dart';
+import 'package:nastech_ai/core/services/chat/chat_service.dart';
+import 'package:nastech_ai/features/home/services/message_builder_service.dart';
 
 class _FakeBuildContext implements BuildContext {
   @override

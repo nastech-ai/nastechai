@@ -1,8 +1,8 @@
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/providers/user_provider.dart';
-import 'package:NasTech AI/features/chat/widgets/chat_message_widget.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/providers/user_provider.dart';
+import 'package:nastech_ai/features/chat/widgets/chat_message_widget.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';

@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:NasTech AI/features/chat/pages/image_viewer_page.dart';
-import 'package:NasTech AI/shared/widgets/markdown_with_highlight.dart';
-import 'package:NasTech AI/shared/widgets/export_capture_scope.dart';
-import 'package:NasTech AI/shared/widgets/mermaid_image_cache.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/icons/lucide_adapter.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
-import 'package:NasTech AI/theme/palettes.dart';
-import 'package:NasTech AI/theme/theme_factory.dart';
+import 'package:nastech_ai/features/chat/pages/image_viewer_page.dart';
+import 'package:nastech_ai/shared/widgets/markdown_with_highlight.dart';
+import 'package:nastech_ai/shared/widgets/export_capture_scope.dart';
+import 'package:nastech_ai/shared/widgets/mermaid_image_cache.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/icons/lucide_adapter.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
+import 'package:nastech_ai/theme/palettes.dart';
+import 'package:nastech_ai/theme/theme_factory.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

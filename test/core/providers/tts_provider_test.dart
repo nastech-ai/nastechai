@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:NasTech AI/core/providers/tts_provider.dart';
-import 'package:NasTech AI/core/services/tts/tts_playback_models.dart';
+import 'package:nastech_ai/core/providers/tts_provider.dart';
+import 'package:nastech_ai/core/services/tts/tts_playback_models.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

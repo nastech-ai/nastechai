@@ -1,5 +1,5 @@
-import 'package:NasTech AI/core/models/chat_input_data.dart';
-import 'package:NasTech AI/features/home/services/message_generation_service.dart';
+import 'package:nastech_ai/core/models/chat_input_data.dart';
+import 'package:nastech_ai/features/home/services/message_generation_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -5,12 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:NasTech AI/core/providers/assistant_provider.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/features/model/widgets/model_select_sheet.dart';
-import 'package:NasTech AI/icons/lucide_adapter.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
-import 'package:NasTech AI/shared/widgets/ios_tactile.dart';
+import 'package:nastech_ai/core/providers/assistant_provider.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/features/model/widgets/model_select_sheet.dart';
+import 'package:nastech_ai/icons/lucide_adapter.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
+import 'package:nastech_ai/shared/widgets/ios_tactile.dart';
 
 ProviderConfig _providerConfig(String key, String name, List<String> models) {
   return ProviderConfig(

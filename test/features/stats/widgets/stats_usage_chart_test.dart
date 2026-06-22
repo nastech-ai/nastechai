@@ -2,9 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/features/stats/models/stats_models.dart';
-import 'package:NasTech AI/features/stats/widgets/stats_usage_chart.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/features/stats/models/stats_models.dart';
+import 'package:nastech_ai/features/stats/widgets/stats_usage_chart.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 
 Widget _harness(Widget child) {
   return MaterialApp(

@@ -3,10 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:NasTech AI/core/providers/assistant_provider.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/features/chat/widgets/reasoning_budget_sheet.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/providers/assistant_provider.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/features/chat/widgets/reasoning_budget_sheet.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 
 Future<SettingsProvider> _settingsForClaudeModel(
   WidgetTester tester,

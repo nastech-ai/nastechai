@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:NasTech AI/core/services/tts/network_tts.dart';
+import 'package:nastech_ai/core/services/tts/network_tts.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

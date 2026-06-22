@@ -1,4 +1,4 @@
-import 'package:NasTech AI/theme/theme_factory.dart';
+import 'package:nastech_ai/theme/theme_factory.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 

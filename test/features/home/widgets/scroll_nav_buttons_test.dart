@@ -1,7 +1,7 @@
 import 'dart:ui' show PointerDeviceKind;
 
-import 'package:NasTech AI/features/home/widgets/scroll_nav_buttons.dart';
-import 'package:NasTech AI/icons/lucide_adapter.dart';
+import 'package:nastech_ai/features/home/widgets/scroll_nav_buttons.dart';
+import 'package:nastech_ai/icons/lucide_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

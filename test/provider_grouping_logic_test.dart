@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/models/provider_group.dart';
-import 'package:NasTech AI/utils/provider_grouping_logic.dart';
+import 'package:nastech_ai/core/models/provider_group.dart';
+import 'package:nastech_ai/utils/provider_grouping_logic.dart';
 
 void main() {
   group('Provider grouping logic', () {

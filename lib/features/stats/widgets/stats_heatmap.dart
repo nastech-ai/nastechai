@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

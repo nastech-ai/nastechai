@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/features/chat/widgets/chat_suggestion_bubbles.dart';
+import 'package:nastech_ai/features/chat/widgets/chat_suggestion_bubbles.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

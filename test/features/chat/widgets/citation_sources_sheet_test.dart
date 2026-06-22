@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/features/chat/widgets/citation_sources_sheet.dart';
-import 'package:NasTech AI/shared/widgets/custom_bottom_sheet.dart';
+import 'package:nastech_ai/features/chat/widgets/citation_sources_sheet.dart';
+import 'package:nastech_ai/shared/widgets/custom_bottom_sheet.dart';
 
 void main() {
   testWidgets(

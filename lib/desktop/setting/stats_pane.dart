@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/stats/pages/stats_page.dart';
 import '../../l10n/app_localizations.dart';
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
 class DesktopStatsPane extends StatelessWidget {
   const DesktopStatsPane({super.key});

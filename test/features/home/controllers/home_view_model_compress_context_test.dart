@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:NasTech AI/core/models/chat_message.dart';
-import 'package:NasTech AI/features/home/controllers/home_view_model.dart';
+import 'package:nastech_ai/core/models/chat_message.dart';
+import 'package:nastech_ai/features/home/controllers/home_view_model.dart';
 
 ChatMessage _message({
   required String id,

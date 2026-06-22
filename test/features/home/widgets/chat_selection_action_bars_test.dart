@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/features/home/widgets/chat_selection_delete_bar.dart';
-import 'package:NasTech AI/features/home/widgets/chat_selection_export_bar.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/shared/widgets/ios_tactile.dart';
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/features/home/widgets/chat_selection_delete_bar.dart';
+import 'package:nastech_ai/features/home/widgets/chat_selection_export_bar.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/shared/widgets/ios_tactile.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

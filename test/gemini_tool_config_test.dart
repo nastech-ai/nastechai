@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:NasTech AI/core/services/api/gemini_tool_config.dart';
+import 'package:nastech_ai/core/services/api/gemini_tool_config.dart';
 
 void main() {
   group('shouldAttachGeminiFunctionCallingConfig', () {

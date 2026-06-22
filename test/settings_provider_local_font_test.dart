@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/utils/sandbox_path_resolver.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/utils/sandbox_path_resolver.dart';
 
 const _fixtureFontPath =
     'dependencies/gpt_markdown/lib/fonts/JetBrainsMono-Regular.ttf';

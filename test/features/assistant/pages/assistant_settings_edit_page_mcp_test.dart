@@ -3,14 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:NasTech AI/core/models/assistant.dart';
-import 'package:NasTech AI/core/providers/assistant_provider.dart';
-import 'package:NasTech AI/core/providers/memory_provider.dart';
-import 'package:NasTech AI/core/providers/quick_phrase_provider.dart';
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/features/assistant/pages/assistant_settings_edit_page.dart';
-import 'package:NasTech AI/icons/lucide_adapter.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/models/assistant.dart';
+import 'package:nastech_ai/core/providers/assistant_provider.dart';
+import 'package:nastech_ai/core/providers/memory_provider.dart';
+import 'package:nastech_ai/core/providers/quick_phrase_provider.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/features/assistant/pages/assistant_settings_edit_page.dart';
+import 'package:nastech_ai/icons/lucide_adapter.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 
 const _assistantId = 'assistant-mcp-test';
 

@@ -1,7 +1,7 @@
 import 'dart:ui' show PointerDeviceKind;
-import 'package:NasTech AI/theme/app_font_weights.dart';
+import 'package:nastech_ai/theme/app_font_weights.dart';
 
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';

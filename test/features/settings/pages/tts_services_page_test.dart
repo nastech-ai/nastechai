@@ -1,7 +1,7 @@
-import 'package:NasTech AI/core/providers/settings_provider.dart';
-import 'package:NasTech AI/core/providers/tts_provider.dart';
-import 'package:NasTech AI/features/settings/pages/tts_services_page.dart';
-import 'package:NasTech AI/l10n/app_localizations.dart';
+import 'package:nastech_ai/core/providers/settings_provider.dart';
+import 'package:nastech_ai/core/providers/tts_provider.dart';
+import 'package:nastech_ai/features/settings/pages/tts_services_page.dart';
+import 'package:nastech_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
