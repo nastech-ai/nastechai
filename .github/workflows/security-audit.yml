@@ -1,0 +1,150 @@
+name: 🤖 Security & Dependency Audit Bot
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.44.1'
+
+jobs:
+  audit:
+    name: Flutter dependency & security audit
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Inject fallback key
+        run: |
+          mkdir -p lib/secrets
+          echo "const String siliconflowFallbackKey = '';" > lib/secrets/fallback.dart
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Run dart analyze
+        id: analyze
+        run: |
+          flutter analyze --no-fatal-infos 2>&1 | tee /tmp/analyze.txt || true
+          ISSUES=$(grep -c "error\|warning" /tmp/analyze.txt || echo "0")
+          echo "issue_count=$ISSUES" >> $GITHUB_OUTPUT
+          echo "## 🔍 Dart Analyze Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/analyze.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for outdated dependencies
+        id: outdated
+        run: |
+          flutter pub outdated --no-color 2>&1 | tee /tmp/outdated.txt || true
+          OUTDATED=$(grep -c "major\|minor" /tmp/outdated.txt || echo "0")
+          echo "outdated_count=$OUTDATED" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Outdated Dependencies" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/outdated.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Run pub audit (security vulnerabilities)
+        id: pubaudit
+        run: |
+          flutter pub audit 2>&1 | tee /tmp/audit.txt || true
+          VULNS=$(grep -c "vulnerability\|Vulnerability" /tmp/audit.txt || echo "0")
+          echo "vuln_count=$VULNS" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/audit.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for hardcoded secrets
+        id: secrets_check
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔑 Hardcoded Secret Scan" >> $GITHUB_STEP_SUMMARY
+          FOUND=0
+
+          SECRET_PATTERNS=(
+            "sk-[a-zA-Z0-9]{20,}"
+            "AIza[a-zA-Z0-9_-]{35}"
+            "AKIA[A-Z0-9]{16}"
+            "password\s*=\s*['\"][^'\"]{8,}"
+            "api_key\s*=\s*['\"][^'\"]{8,}"
+          )
+
+          for PATTERN in "${SECRET_PATTERNS[@]}"; do
+            MATCHES=$(grep -rn --include="*.dart" -E "$PATTERN" lib/ 2>/dev/null | \
+              grep -v "fallback.dart" | grep -v "//" || true)
+            if [ -n "$MATCHES" ]; then
+              echo "⚠️ Potential secret pattern found: \`$PATTERN\`" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "$MATCHES" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              FOUND=$((FOUND + 1))
+            fi
+          done
+
+          if [ "$FOUND" -eq 0 ]; then
+            echo "✅ No hardcoded secret patterns detected in lib/" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "found_count=$FOUND" >> $GITHUB_OUTPUT
+
+      - name: Build audit summary
+        id: summary
+        run: |
+          VULNS="${{ steps.pubaudit.outputs.vuln_count }}"
+          OUTDATED="${{ steps.outdated.outputs.outdated_count }}"
+          ISSUES="${{ steps.analyze.outputs.issue_count }}"
+          SECRETS="${{ steps.secrets_check.outputs.found_count }}"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Count | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Security vulnerabilities | $VULNS | $([ "$VULNS" -gt 0 ] && echo '❌' || echo '✅') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Outdated packages | $OUTDATED | $([ "$OUTDATED" -gt 10 ] && echo '⚠️' || echo '✅') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dart analyze issues | $ISSUES | $([ "$ISSUES" -gt 0 ] && echo '⚠️' || echo '✅') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Hardcoded secrets | $SECRETS | $([ "$SECRETS" -gt 0 ] && echo '❌' || echo '✅') |" >> $GITHUB_STEP_SUMMARY
+
+          NEEDS_ISSUE=false
+          [ "$VULNS" -gt 0 ] && NEEDS_ISSUE=true
+          [ "$SECRETS" -gt 0 ] && NEEDS_ISSUE=true
+          echo "needs_issue=$NEEDS_ISSUE" >> $GITHUB_OUTPUT
+
+      - name: Open GitHub issue if critical findings
+        if: steps.summary.outputs.needs_issue == 'true'
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          VULNS="${{ steps.pubaudit.outputs.vuln_count }}"
+          SECRETS="${{ steps.secrets_check.outputs.found_count }}"
+
+          TITLE="🔒 Security Audit Alert — ${DATE}"
+          BODY="## Security Audit Detected Critical Issues\n\n\
+| Finding | Count |\n\
+|---------|-------|\n\
+| Security vulnerabilities | ${VULNS} |\n\
+| Potential hardcoded secrets | ${SECRETS} |\n\n\
+### Details\n\n\
+\`\`\`\n$(cat /tmp/audit.txt)\n\`\`\`\n\n\
+🔗 [View full audit run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\n\
+**Action Required:** Please review and resolve the above findings immediately."
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues" \
+            -d "{\"title\":\"${TITLE}\",\"body\":\"$(echo -e "$BODY")\",\"labels\":[\"security\",\"audit\"]}" \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Issue:', d.get('html_url','error'))"
