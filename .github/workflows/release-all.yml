@@ -102,12 +102,10 @@ jobs:
         run: |
           KEYSTORE_ABS="$(pwd)/android/app/key.jks"
           echo "$SIGN_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_ABS"
-          cat > android/key.properties <<EOF
-storeFile=${KEYSTORE_ABS}
-storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-keyAlias=${{ secrets.KEY_ALIAS }}
-keyPassword=${{ secrets.KEY_PASSWORD }}
-EOF
+          echo "storeFile=${KEYSTORE_ABS}"                        > android/key.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}"  >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}"               >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}"         >> android/key.properties
           echo "✅ Production keystore written with absolute path: $KEYSTORE_ABS"
 
       - name: Generate debug keystore (fallback — no SIGN_KEYSTORE_BASE64 set)
@@ -122,12 +120,10 @@ EOF
             -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass android123 -keypass android123 \
             -dname "CN=NasTech AI CI, OU=Dev, O=NasTech AI, L=Unknown, S=Unknown, C=US"
-          cat > android/key.properties <<EOF
-storeFile=${KEYSTORE_ABS}
-storePassword=android123
-keyAlias=nastechai
-keyPassword=android123
-EOF
+          echo "storeFile=${KEYSTORE_ABS}"   > android/key.properties
+          echo "storePassword=android123"     >> android/key.properties
+          echo "keyAlias=nastechai"           >> android/key.properties
+          echo "keyPassword=android123"       >> android/key.properties
           echo "✅ Debug CI keystore written with absolute path: $KEYSTORE_ABS"
           cat android/key.properties
 
