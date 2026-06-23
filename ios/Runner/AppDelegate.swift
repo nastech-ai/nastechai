@@ -267,7 +267,7 @@ private final class IosBackgroundGenerationHandler {
 
   private func isLiveActivityActive() -> Bool {
     if #available(iOS 16.1, *) {
-      return liveActivity as? Activity<NasTech AIGenerationActivityAttributes> != nil
+      return liveActivity as? Activity<NasTechAIGenerationActivityAttributes> != nil
     }
     return false
   }
@@ -294,9 +294,9 @@ private final class IosBackgroundGenerationHandler {
       )
       do {
         if #available(iOS 16.2, *) {
-          liveActivity = try Activity<NasTech AIGenerationActivityAttributes>.request(attributes: NasTech AIGenerationActivityAttributes(title: title), content: ActivityContent(state: state, staleDate: nil), pushType: nil)
+          liveActivity = try Activity<NasTechAIGenerationActivityAttributes>.request(attributes: NasTechAIGenerationActivityAttributes(title: title), content: ActivityContent(state: state, staleDate: nil), pushType: nil)
         } else {
-          liveActivity = try Activity<NasTech AIGenerationActivityAttributes>.request(attributes: NasTech AIGenerationActivityAttributes(title: title), contentState: state, pushType: nil)
+          liveActivity = try Activity<NasTechAIGenerationActivityAttributes>.request(attributes: NasTechAIGenerationActivityAttributes(title: title), contentState: state, pushType: nil)
         }
         startLiveActivityRefreshTimer()
       } catch {
@@ -335,7 +335,7 @@ private final class IosBackgroundGenerationHandler {
   }
 
   private func markLiveActivityFinished(title: String, detail: String) {
-    if #available(iOS 16.1, *), let activity = liveActivity as? Activity<NasTech AIGenerationActivityAttributes> {
+    if #available(iOS 16.1, *), let activity = liveActivity as? Activity<NasTechAIGenerationActivityAttributes> {
       let finishedAt = Date()
       liveActivityDisplayTitle = title
       liveActivityDetail = detail
@@ -361,7 +361,7 @@ private final class IosBackgroundGenerationHandler {
   }
 
   private func endLiveActivity(detail: String) {
-    if #available(iOS 16.1, *), let activity = liveActivity as? Activity<NasTech AIGenerationActivityAttributes> {
+    if #available(iOS 16.1, *), let activity = liveActivity as? Activity<NasTechAIGenerationActivityAttributes> {
       let state = liveActivityState(
         displayTitle: liveActivityDisplayTitle,
         detail: detail,
@@ -406,7 +406,7 @@ private final class IosBackgroundGenerationHandler {
   }
 
   private func refreshLiveActivity() {
-    guard #available(iOS 16.1, *), let activity = liveActivity as? Activity<NasTech AIGenerationActivityAttributes> else { return }
+    guard #available(iOS 16.1, *), let activity = liveActivity as? Activity<NasTechAIGenerationActivityAttributes> else { return }
     guard !liveActivityFinished else { return }
     liveActivityWavePhase += 1
     let state = liveActivityState(
@@ -434,10 +434,10 @@ private final class IosBackgroundGenerationHandler {
     tokenLabel: String,
     finishedAt: Date?,
     isFinished: Bool
-  ) -> NasTech AIGenerationActivityAttributes.ContentState {
+  ) -> NasTechAIGenerationActivityAttributes.ContentState {
     let startedAt = liveActivityStartedAt
     let effectiveFinishedAt = finishedAt ?? Date()
-    return NasTech AIGenerationActivityAttributes.ContentState(
+    return NasTechAIGenerationActivityAttributes.ContentState(
       displayTitle: displayTitle,
       detail: detail,
       tokenCount: tokenCount,
