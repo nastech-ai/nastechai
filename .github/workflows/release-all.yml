@@ -215,6 +215,7 @@ jobs:
 
       - name: Install CocoaPods dependencies
         run: |
+          flutter pub get
           cd ios
           pod install --repo-update
 
