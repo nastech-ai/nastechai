@@ -126,25 +126,51 @@ jobs:
 
       - name: Open GitHub issue if critical findings
         if: steps.summary.outputs.needs_issue == 'true'
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          VULNS: ${{ steps.pubaudit.outputs.vuln_count }}
+          SECRETS_FOUND: ${{ steps.secrets_check.outputs.found_count }}
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          DATE=$(date +%Y-%m-%d)
-          VULNS="${{ steps.pubaudit.outputs.vuln_count }}"
-          SECRETS="${{ steps.secrets_check.outputs.found_count }}"
+          python3 - <<'PYEOF'
+          import json, subprocess, os
+          from datetime import date
 
-          TITLE="🔒 Security Audit Alert — ${DATE}"
-          BODY="## Security Audit Detected Critical Issues\n\n\
-| Finding | Count |\n\
-|---------|-------|\n\
-| Security vulnerabilities | ${VULNS} |\n\
-| Potential hardcoded secrets | ${SECRETS} |\n\n\
-### Details\n\n\
-\`\`\`\n$(cat /tmp/audit.txt)\n\`\`\`\n\n\
-🔗 [View full audit run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\n\
-**Action Required:** Please review and resolve the above findings immediately."
+          repo    = os.environ['REPO']
+          run_id  = os.environ['RUN_ID']
+          vulns   = os.environ['VULNS']
+          secrets = os.environ['SECRETS_FOUND']
+          token   = os.environ['GH_TOKEN']
 
-          curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues" \
-            -d "{\"title\":\"${TITLE}\",\"body\":\"$(echo -e "$BODY")\",\"labels\":[\"security\",\"audit\"]}" \
-            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Issue:', d.get('html_url','error'))"
+          try:
+              with open('/tmp/audit.txt') as f:
+                  audit_text = f.read()[:3000]
+          except Exception:
+              audit_text = "(no audit output)"
+
+          title = f"🔒 Security Audit Alert — {date.today()}"
+          body  = (
+              "## Security Audit Detected Critical Issues\n\n"
+              "| Finding | Count |\n"
+              "|---------|-------|\n"
+              f"| Security vulnerabilities | {vulns} |\n"
+              f"| Potential hardcoded secrets | {secrets} |\n\n"
+              "### Details\n\n"
+              f"```\n{audit_text}\n```\n\n"
+              f"🔗 [View full audit run](https://github.com/{repo}/actions/runs/{run_id})\n\n"
+              "**Action Required:** Please review and resolve the above findings immediately."
+          )
+
+          payload = json.dumps({"title": title, "body": body, "labels": ["security", "audit"]})
+          result = subprocess.run(
+              ["curl", "-s", "-X", "POST",
+               "-H", f"Authorization: Bearer {token}",
+               "-H", "Accept: application/vnd.github+json",
+               f"https://api.github.com/repos/{repo}/issues",
+               "-d", payload],
+              capture_output=True, text=True
+          )
+          data = json.loads(result.stdout)
+          print("Issue:", data.get("html_url", "error: " + str(data)[:100]))
+          PYEOF
