@@ -69,6 +69,7 @@ jobs:
       contents: write
     outputs:
       release_created: ${{ steps.create.outputs.release_created }}
+      release_id: ${{ steps.create.outputs.release_id }}
 
     steps:
       - name: Checkout (for git history)
@@ -205,8 +206,10 @@ jobs:
                   print(f'ERROR: Could not create or find release for tag {tag}: {str(d)[:200]}')
                   exit(1)
 
+          rel_id_final = d.get('id') or rel_id or ''
           with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as out:
               out.write('release_created=true\n')
+              out.write(f'release_id={rel_id_final}\n')
           PYEOF
 
   # ─────────────────────────────────────────────
@@ -1065,6 +1068,7 @@ jobs:
           EOF
 
       - name: Commit and push build/web
+        continue-on-error: true
         env:
           TAG: ${{ needs.meta.outputs.tag }}
         run: |
@@ -1148,6 +1152,7 @@ jobs:
           TAG: ${{ needs.meta.outputs.tag }}
           REPO: ${{ github.repository }}
           DRAFT: ${{ needs.meta.outputs.draft }}
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
           ANDROID_RESULT: ${{ needs.android.result }}
           IOS_RESULT: ${{ needs.ios.result }}
           MACOS_RESULT: ${{ needs.macos.result }}
@@ -1159,9 +1164,10 @@ jobs:
           python3 - <<'PYEOF'
           import os, json, subprocess
 
-          tag   = os.environ['TAG']
-          repo  = os.environ['REPO']
-          token = os.environ['GH_TOKEN']
+          tag        = os.environ['TAG']
+          repo       = os.environ['REPO']
+          token      = os.environ['GH_TOKEN']
+          release_id = os.environ.get('RELEASE_ID', '').strip()
           draft = os.environ.get('DRAFT', 'false').lower() == 'true'
 
           BADGES = {
@@ -1184,16 +1190,22 @@ jobs:
           all_ok   = all(b == '\u2705' for b in [android, ios, macos, windows, linux, linux_arm, web])
           headline = '\U0001f7e2 All builds passed' if all_ok else '\U0001f7e1 Some builds had issues \u2014 see table below'
 
-          # Fetch current release
-          r = subprocess.run(
-              ['curl', '-s',
-               '-H', f'Authorization: Bearer {token}',
-               '-H', 'Accept: application/vnd.github+json',
-               f'https://api.github.com/repos/{repo}/releases/tags/{tag}'],
-              capture_output=True, text=True
-          )
-          rel    = json.loads(r.stdout) if r.stdout else {}
-          rel_id = rel.get('id')
+          # Fetch current release — prefer ID passed from create-release job to avoid
+          # tag-lookup race conditions (draft releases can appear "untagged" briefly)
+          def fetch_release(url):
+              r = subprocess.run(
+                  ['curl', '-s', '-H', f'Authorization: Bearer {token}',
+                   '-H', 'Accept: application/vnd.github+json', url],
+                  capture_output=True, text=True
+              )
+              return json.loads(r.stdout) if r.stdout else {}
+
+          rel = {}
+          if release_id:
+              rel = fetch_release(f'https://api.github.com/repos/{repo}/releases/{release_id}')
+          if not rel.get('id'):
+              rel = fetch_release(f'https://api.github.com/repos/{repo}/releases/tags/{tag}')
+          rel_id = rel.get('id') or release_id or None
           body   = rel.get('body', '')
 
           # Replace ⏳ placeholder with final note
