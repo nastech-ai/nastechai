@@ -59,11 +59,162 @@ jobs:
           echo "Resolved tag=$TAG version=$VERSION"
 
   # ─────────────────────────────────────────────
+  # Create GitHub Release — draft with template body
+  # ─────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release (draft)
+    needs: meta
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      release_created: ${{ steps.create.outputs.release_created }}
+
+    steps:
+      - name: Checkout (for git history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Create tag if needed (workflow_dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "${TAG}"; then
+            echo "Tag ${TAG} already exists on remote"
+          else
+            git config user.name "NasTech AI CI"
+            git config user.email "ci@nastechai.com"
+            git tag -a "${TAG}" -m "Release ${TAG}"
+            git push origin "${TAG}"
+            echo "✅ Created and pushed tag ${TAG}"
+          fi
+
+      - name: Create draft release with template body
+        id: create
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+          VERSION: ${{ needs.meta.outputs.version }}
+          REPO: ${{ github.repository }}
+          PRERELEASE: ${{ needs.meta.outputs.prerelease }}
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${TAG}$" | head -1 || true)
+          export PREV_TAG
+
+          python3 - <<'PYEOF'
+          import os, json, subprocess
+
+          tag      = os.environ['TAG']
+          version  = os.environ['VERSION']
+          repo     = os.environ['REPO']
+          token    = os.environ['GH_TOKEN']
+          prerel   = os.environ.get('PRERELEASE', 'false').lower() == 'true'
+          prev_tag = os.environ.get('PREV_TAG', '').strip()
+
+          # Fetch auto-generated release notes from GitHub API
+          payload = {'tag_name': tag}
+          if prev_tag:
+              payload['previous_tag_name'] = prev_tag
+          r = subprocess.run(
+              ['curl', '-s', '-X', 'POST',
+               '-H', f'Authorization: Bearer {token}',
+               '-H', 'Accept: application/vnd.github+json',
+               f'https://api.github.com/repos/{repo}/releases/generate-notes',
+               '-d', json.dumps(payload)],
+              capture_output=True, text=True
+          )
+          auto_notes = json.loads(r.stdout).get('body', '') if r.stdout else ''
+
+          compare = (f'**Full Changelog**: https://github.com/{repo}/compare/{prev_tag}...{tag}'
+                     if prev_tag else '')
+
+          body = '\n'.join([
+              f'## \U0001f680 NasTech AI {tag}',
+              '',
+              'A cross-platform AI chat client built with Flutter \u2014 chat with any LLM on any platform.',
+              '',
+              '### \U0001f4e6 Downloads',
+              '',
+              '> \u23f3 Build artifacts are being compiled and uploaded \u2014 check back in a few minutes.',
+              '',
+              '| Platform | Files | Notes |',
+              '|----------|-------|-------|',
+              '| \U0001f916 **Android** | APK (arm64\u00b7armeabi-v7a\u00b7x86_64) \u00b7 AAB | Sideload APK or submit AAB to Play Store |',
+              '| \U0001f34e **iOS** | IPA | No-codesign \u2014 use [AltStore](https://altstore.io) to sideload |',
+              '| \U0001f34e **macOS** | DMG | macOS 12+ |',
+              '| \U0001fa9f **Windows** | ZIP \u00b7 Setup Installer | Windows 10 / 11 (64-bit) |',
+              '| \U0001f427 **Linux x64** | tar.gz \u00b7 AppImage \u00b7 DEB \u00b7 RPM | Ubuntu, Fedora, Arch, etc. |',
+              '| \U0001f427 **Linux ARM64** | tar.gz \u00b7 DEB | Raspberry Pi 4+, Ampere cloud VMs |',
+              '| \U0001f310 **Web** | ZIP (self-host) | Unzip and serve with any HTTP server |',
+              '',
+              "### \U0001f4cb What's Changed",
+              '',
+              auto_notes,
+              '',
+              compare,
+          ])
+
+          release_data = {
+              'tag_name': tag,
+              'name': f'\U0001f680 NasTech AI {tag}',
+              'body': body,
+              'draft': True,
+              'prerelease': prerel,
+          }
+
+          # Try to create release
+          r2 = subprocess.run(
+              ['curl', '-s', '-X', 'POST',
+               '-H', f'Authorization: Bearer {token}',
+               '-H', 'Accept: application/vnd.github+json',
+               f'https://api.github.com/repos/{repo}/releases',
+               '-d', json.dumps(release_data)],
+              capture_output=True, text=True
+          )
+          d = json.loads(r2.stdout) if r2.stdout else {}
+
+          if 'id' in d:
+              print(f'SUCCESS: Draft release created: {d.get("html_url")}')
+          else:
+              # Release may already exist — find and update body + name
+              r3 = subprocess.run(
+                  ['curl', '-s',
+                   '-H', f'Authorization: Bearer {token}',
+                   '-H', 'Accept: application/vnd.github+json',
+                   f'https://api.github.com/repos/{repo}/releases/tags/{tag}'],
+                  capture_output=True, text=True
+              )
+              d3 = json.loads(r3.stdout) if r3.stdout else {}
+              rel_id = d3.get('id')
+              if rel_id:
+                  patch = {'name': f'\U0001f680 NasTech AI {tag}', 'body': body, 'draft': True}
+                  subprocess.run(
+                      ['curl', '-s', '-X', 'PATCH',
+                       '-H', f'Authorization: Bearer {token}',
+                       '-H', 'Accept: application/vnd.github+json',
+                       f'https://api.github.com/repos/{repo}/releases/{rel_id}',
+                       '-d', json.dumps(patch)],
+                      capture_output=True, text=True
+                  )
+                  print(f'SUCCESS: Existing release updated with template body (id={rel_id})')
+              else:
+                  print(f'ERROR: Could not create or find release for tag {tag}: {str(d)[:200]}')
+                  exit(1)
+
+          with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as out:
+              out.write('release_created=true\n')
+          PYEOF
+
+  # ─────────────────────────────────────────────
   # Android — APK (split ABI) + AAB
   # ─────────────────────────────────────────────
   android:
     name: Android (APK + AAB)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -197,25 +348,25 @@ jobs:
           name: Android-AAB
           path: NasTech_AI_android_*.aab
 
-      - name: Publish to Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload to Release
+        if: always()
         continue-on-error: true
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: |
-            build/app/outputs/flutter-apk/NasTech_AI_android_*.apk
-            NasTech_AI_android_*.aab
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          APKS=(build/app/outputs/flutter-apk/NasTech_AI_android_*.apk)
+          AABS=(NasTech_AI_android_*.aab)
+          FILES=("${APKS[@]}" "${AABS[@]}")
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
   # iOS — IPA (no-codesign)
   # ─────────────────────────────────────────────
   ios:
     name: iOS (IPA)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: macos-latest
     permissions: write-all
     steps:
@@ -265,22 +416,23 @@ jobs:
           name: iOS-IPA
           path: NasTech_AI_ios_*.ipa
 
-      - name: Publish to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: NasTech_AI_ios_*.ipa
+      - name: Upload to Release
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          FILES=(NasTech_AI_ios_*.ipa)
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
   # macOS — DMG
   # ─────────────────────────────────────────────
   macos:
     name: macOS (DMG)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: macos-latest
     permissions: write-all
     steps:
@@ -338,22 +490,23 @@ jobs:
           name: macOS-DMG
           path: NasTech_AI_macos_*.dmg
 
-      - name: Publish to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: NasTech_AI_macos_*.dmg
+      - name: Upload to Release
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          FILES=(NasTech_AI_macos_*.dmg)
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
   # Windows — ZIP + Inno Setup installer
   # ─────────────────────────────────────────────
   windows:
     name: Windows (ZIP + Installer)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: windows-latest
     permissions: write-all
     steps:
@@ -490,24 +643,24 @@ jobs:
           name: Windows-Installer
           path: NasTech_AI_windows_*_setup.exe
 
-      - name: Publish to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: |
-            NasTech_AI_windows_*.zip
-            NasTech_AI_windows_*_setup.exe
+      - name: Upload to Release
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          FILES=(NasTech_AI_windows_*.zip NasTech_AI_windows_*_setup.exe)
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
   # Linux x64 — tar.gz + AppImage + DEB + RPM
   # ─────────────────────────────────────────────
   linux:
     name: Linux x64 (tar.gz + AppImage + DEB + RPM)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: ubuntu-22.04
     permissions: write-all
     steps:
@@ -720,26 +873,23 @@ jobs:
           name: Linux-RPM
           path: NasTech_AI_linux_*.rpm
 
-      - name: Publish to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: |
-            NasTech_AI_linux_*.tar.gz
-            NasTech_AI_linux_*.AppImage
-            NasTech_AI_linux_*_amd64.deb
-            NasTech_AI_linux_*.rpm
+      - name: Upload to Release
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          FILES=(NasTech_AI_linux_*.tar.gz NasTech_AI_linux_*.AppImage NasTech_AI_linux_*_amd64.deb NasTech_AI_linux_*.rpm)
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
   # Linux ARM64 — tar.gz + DEB
   # ─────────────────────────────────────────────
   linux-arm64:
     name: Linux ARM64 (tar.gz + DEB)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: ubuntu-22.04-arm
     permissions: write-all
     steps:
@@ -840,24 +990,23 @@ jobs:
           name: Linux-ARM64-DEB
           path: NasTech_AI_linux_arm64_*.deb
 
-      - name: Publish to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: |
-            NasTech_AI_linux_arm64_*.tar.gz
-            NasTech_AI_linux_arm64_*.deb
+      - name: Upload to Release
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          FILES=(NasTech_AI_linux_arm64_*.tar.gz NasTech_AI_linux_arm64_*.deb)
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
   # Web — Flutter web build committed back to repo
   # ─────────────────────────────────────────────
   web:
     name: Web (Flutter → build/web)
-    needs: meta
+    needs: [meta, create-release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -967,41 +1116,150 @@ jobs:
           path: NasTech_AI_web_*.zip
         continue-on-error: true
 
-      - name: Publish web ZIP to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          prerelease: ${{ needs.meta.outputs.prerelease }}
-          draft: ${{ needs.meta.outputs.draft }}
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          files: NasTech_AI_web_*.zip
+      - name: Upload web ZIP to Release
+        if: always()
         continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          shopt -s nullglob
+          FILES=(NasTech_AI_web_*.zip)
+          [ ${#FILES[@]} -gt 0 ] && gh release upload "$TAG" "${FILES[@]}" --clobber || true
 
   # ─────────────────────────────────────────────
-  # Summary — prints download table after all done
+  # Finalize — update release body with build results & publish
   # ─────────────────────────────────────────────
-  summary:
-    name: Release Summary
-    needs: [meta, android, ios, macos, windows, linux, linux-arm64, web]
-    if: always()
+  finalize-release:
+    name: Finalize & Publish Release
+    needs: [meta, create-release, android, ios, macos, windows, linux, linux-arm64, web]
+    if: always() && needs.create-release.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - name: Print release summary
+      - name: Update release body with build status and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.meta.outputs.tag }}
+          REPO: ${{ github.repository }}
+          DRAFT: ${{ needs.meta.outputs.draft }}
+          ANDROID_RESULT: ${{ needs.android.result }}
+          IOS_RESULT: ${{ needs.ios.result }}
+          MACOS_RESULT: ${{ needs.macos.result }}
+          WINDOWS_RESULT: ${{ needs.windows.result }}
+          LINUX_RESULT: ${{ needs.linux.result }}
+          LINUX_ARM64_RESULT: ${{ needs.linux-arm64.result }}
+          WEB_RESULT: ${{ needs.web.result }}
+        run: |
+          python3 - <<'PYEOF'
+          import os, json, subprocess
+
+          tag   = os.environ['TAG']
+          repo  = os.environ['REPO']
+          token = os.environ['GH_TOKEN']
+          draft = os.environ.get('DRAFT', 'false').lower() == 'true'
+
+          BADGES = {
+              'success':   '\u2705',
+              'failure':   '\u274c',
+              'cancelled': '\u26a0\ufe0f',
+              'skipped':   '\u23ed\ufe0f',
+          }
+          def badge(s):
+              return BADGES.get(s, '\u2753')
+
+          android   = badge(os.environ.get('ANDROID_RESULT', ''))
+          ios       = badge(os.environ.get('IOS_RESULT', ''))
+          macos     = badge(os.environ.get('MACOS_RESULT', ''))
+          windows   = badge(os.environ.get('WINDOWS_RESULT', ''))
+          linux     = badge(os.environ.get('LINUX_RESULT', ''))
+          linux_arm = badge(os.environ.get('LINUX_ARM64_RESULT', ''))
+          web       = badge(os.environ.get('WEB_RESULT', ''))
+
+          all_ok   = all(b == '\u2705' for b in [android, ios, macos, windows, linux, linux_arm, web])
+          headline = '\U0001f7e2 All builds passed' if all_ok else '\U0001f7e1 Some builds had issues \u2014 see table below'
+
+          # Fetch current release
+          r = subprocess.run(
+              ['curl', '-s',
+               '-H', f'Authorization: Bearer {token}',
+               '-H', 'Accept: application/vnd.github+json',
+               f'https://api.github.com/repos/{repo}/releases/tags/{tag}'],
+              capture_output=True, text=True
+          )
+          rel    = json.loads(r.stdout) if r.stdout else {}
+          rel_id = rel.get('id')
+          body   = rel.get('body', '')
+
+          # Replace ⏳ placeholder with final note
+          body = body.replace(
+              '> \u23f3 Build artifacts are being compiled and uploaded \u2014 check back in a few minutes.',
+              '> All platform binaries are attached below. See the build status table for details.'
+          )
+
+          # Append build status table
+          body += '\n'.join([
+              '',
+              '### \U0001f4ca Build Status',
+              '',
+              headline,
+              '',
+              '| Platform | Status |',
+              '|----------|--------|',
+              f'| \U0001f916 Android (APK + AAB) | {android} |',
+              f'| \U0001f34e iOS (IPA) | {ios} |',
+              f'| \U0001f34e macOS (DMG) | {macos} |',
+              f'| \U0001fa9f Windows (ZIP + Installer) | {windows} |',
+              f'| \U0001f427 Linux x64 (tar.gz / AppImage / DEB / RPM) | {linux} |',
+              f'| \U0001f427 Linux ARM64 (tar.gz / DEB) | {linux_arm} |',
+              f'| \U0001f310 Web (ZIP) | {web} |',
+          ])
+
+          if rel_id:
+              # Update body
+              subprocess.run(
+                  ['curl', '-s', '-X', 'PATCH',
+                   '-H', f'Authorization: Bearer {token}',
+                   '-H', 'Accept: application/vnd.github+json',
+                   f'https://api.github.com/repos/{repo}/releases/{rel_id}',
+                   '-d', json.dumps({'body': body, 'draft': draft})],
+                  capture_output=True, text=True
+              )
+              print('\u2705 Release body updated with build status')
+
+              # Publish (remove draft) unless draft mode requested
+              if not draft:
+                  subprocess.run(
+                      ['curl', '-s', '-X', 'PATCH',
+                       '-H', f'Authorization: Bearer {token}',
+                       '-H', 'Accept: application/vnd.github+json',
+                       f'https://api.github.com/repos/{repo}/releases/{rel_id}',
+                       '-d', json.dumps({'draft': False})],
+                      capture_output=True, text=True
+                  )
+                  print(f'\U0001f680 Release published: https://github.com/{repo}/releases/tag/{tag}')
+          else:
+              print(f'\u26a0\ufe0f Could not find release for tag {tag}')
+          PYEOF
+
+      - name: Print CI step summary
+        if: always()
         env:
           TAG: ${{ needs.meta.outputs.tag }}
           REPO: ${{ github.repository }}
         run: |
-          echo "## NasTech AI Release ${TAG}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 NasTech AI Release ${TAG}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Android (APK + AAB) | ${{ needs.android.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| iOS (IPA) | ${{ needs.ios.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| macOS (DMG) | ${{ needs.macos.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Windows (ZIP + Installer) | ${{ needs.windows.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Linux x64 (tar.gz/AppImage/DEB/RPM) | ${{ needs.linux.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Linux ARM64 (tar.gz/DEB) | ${{ needs.linux-arm64.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Web | ${{ needs.web.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🤖 Android (APK + AAB) | ${{ needs.android.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🍎 iOS (IPA) | ${{ needs.ios.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🍎 macOS (DMG) | ${{ needs.macos.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🪟 Windows (ZIP + Installer) | ${{ needs.windows.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🐧 Linux x64 (tar.gz/AppImage/DEB/RPM) | ${{ needs.linux.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🐧 Linux ARM64 (tar.gz/DEB) | ${{ needs.linux-arm64.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌐 Web | ${{ needs.web.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 [View Release](https://github.com/${REPO}/releases/tag/${TAG})" >> $GITHUB_STEP_SUMMARY
