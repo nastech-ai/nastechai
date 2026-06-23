@@ -78,22 +78,63 @@ jobs:
     steps:
       - name: Open GitHub Issue for persistent failure
         run: |
-          TITLE="🚨 Persistent CI failure: ${{ github.event.workflow_run.name }}"
-          BODY="## Persistent CI Failure Detected\n\n\
-The following workflow has failed **3 times in a row** and was not auto-recovered.\n\n\
-| Field | Value |\n\
-|-------|-------|\n\
-| **Workflow** | ${{ github.event.workflow_run.name }} |\n\
-| **Run** | [#${{ github.event.workflow_run.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}) |\n\
-| **Branch** | \`${{ github.event.workflow_run.head_branch }}\` |\n\
-| **Commit** | \`${{ github.event.workflow_run.head_sha }}\` |\n\
-| **Triggered by** | ${{ github.event.workflow_run.triggering_actor.login }} |\n\n\
-### Action Required\n\nPlease investigate the failing build and fix the root cause.\n\n\
-🔗 [View failed run](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_NUM="${{ github.event.workflow_run.run_number }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          ACTOR="${{ github.event.workflow_run.triggering_actor.login }}"
+          REPO="${{ github.repository }}"
 
-          curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues" \
-            -d "{\"title\":\"${TITLE}\",\"body\":\"$(echo -e "$BODY")\",\"labels\":[\"ci-failure\",\"bug\"]}" \
-            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Issue created:', d.get('html_url','error'))"
+          TITLE="🚨 Persistent CI failure: ${WORKFLOW_NAME}"
+
+          python3 - <<'PYEOF'
+          import json, subprocess, os
+
+          repo = os.environ.get('REPO', '')
+          wf   = os.environ.get('WORKFLOW_NAME', '')
+          run_num = os.environ.get('RUN_NUM', '')
+          run_id  = os.environ.get('RUN_ID', '')
+          branch  = os.environ.get('BRANCH', '')
+          sha     = os.environ.get('SHA', '')
+          actor   = os.environ.get('ACTOR', '')
+          title   = os.environ.get('TITLE', '')
+          token   = os.environ.get('GH_TOKEN', '')
+
+          body = (
+              f"## Persistent CI Failure Detected\n\n"
+              f"The workflow **{wf}** has failed 3 times in a row and was not auto-recovered.\n\n"
+              f"| Field | Value |\n"
+              f"|-------|-------|\n"
+              f"| **Workflow** | {wf} |\n"
+              f"| **Run** | [#{run_num}](https://github.com/{repo}/actions/runs/{run_id}) |\n"
+              f"| **Branch** | `{branch}` |\n"
+              f"| **Commit** | `{sha}` |\n"
+              f"| **Triggered by** | {actor} |\n\n"
+              f"### Action Required\n\n"
+              f"Please investigate and fix the root cause.\n\n"
+              f"🔗 [View failed run](https://github.com/{repo}/actions/runs/{run_id})"
+          )
+
+          payload = json.dumps({"title": title, "body": body, "labels": ["ci-failure", "bug"]})
+          result = subprocess.run(
+              ["curl", "-s", "-X", "POST",
+               "-H", f"Authorization: Bearer {token}",
+               "-H", "Accept: application/vnd.github+json",
+               f"https://api.github.com/repos/{repo}/issues",
+               "-d", payload],
+              capture_output=True, text=True
+          )
+          data = json.loads(result.stdout)
+          print("Issue created:", data.get("html_url", "error: " + str(data)[:100]))
+          PYEOF
+        env:
+          REPO: ${{ github.repository }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          RUN_NUM: ${{ github.event.workflow_run.run_number }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          ACTOR: ${{ github.event.workflow_run.triggering_actor.login }}
+          TITLE: "🚨 Persistent CI failure: ${{ github.event.workflow_run.name }}"
+          GH_TOKEN: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
