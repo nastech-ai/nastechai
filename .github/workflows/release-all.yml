@@ -287,10 +287,13 @@ jobs:
       - name: Verify APK signatures
         run: |
           echo "🔍 Verifying APK signatures..."
+          BUILD_TOOLS_DIR=$(ls -d "$ANDROID_SDK_ROOT/build-tools"/* 2>/dev/null | sort -V | tail -1)
+          APKSIGNER="${BUILD_TOOLS_DIR}/apksigner"
+          echo "Using apksigner: $APKSIGNER"
           ALL_OK=true
           for apk in build/app/outputs/flutter-apk/app-*-release.apk; do
             echo "--- Verifying: $apk"
-            if apksigner verify --verbose "$apk" 2>&1; then
+            if "$APKSIGNER" verify --verbose "$apk" 2>&1; then
               echo "✅ Signed OK: $apk"
             else
               echo "❌ NOT SIGNED or invalid: $apk"
