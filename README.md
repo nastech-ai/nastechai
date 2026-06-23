@@ -1,99 +1,65 @@
 <div align="center">
-  <img src="assets/app_icon.png" alt="NasTech AI Icon" width="100" />
+  <img src="assets/app_icon.png" alt="NasTech AI" width="120" />
   <h1>NasTech AI</h1>
+  <p><strong>A powerful, cross-platform Flutter LLM Chat Client</strong></p>
 
-A Flutter LLM Chat Client
+  [![Release](https://img.shields.io/github/v/release/nastech-ai/nastechai?style=for-the-badge&color=1a1a2e)](https://github.com/nastech-ai/nastechai/releases/latest)
+  [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter)](https://flutter.dev)
+  [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-  <a href="https://discord.gg/Tb8DyvvV5T" target="_blank">
-    <img src="https://img.shields.io/badge/Join%20our%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join Discord"/>
-  </a>
-  <a href="https://qm.qq.com/q/OQaXetKssC" target="_blank" style="margin-left: 6px;">
-    <img src="https://img.shields.io/badge/Join%20QQ%20Group-%230366CC?style=for-the-badge&logo=qq&logoColor=white" alt="Join QQ Group"/>
-  </a>
-
-
-English | [简体中文](README_ZH_CN.md)
+  **Android · iOS · macOS · Windows · Linux · Web**
 </div>
-
-<div align="center">
-  <img src="docx/screenshot_1.png" alt="Chat Screen" width="150" />
-  <img src="docx/screenshot_2.png" alt="Model Selection" width="150" />
-  <img src="docx/screenshot_3.png" alt="Tool Calling" width="150" />
-  <img src="docx/screenshot_4.png" alt="Web Search" width="150" />
-</div>
-
-## 🚀 Download
-
-[![Download on the App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/us/app/nastechai/id6752122930)
-
-🔗 [Download the latest version](https://github.com/nastechai/nastechai-app/releases/latest)
-
-🔗 [TestFlight](https://testflight.apple.com/join/erbGGykR) for beta testing.
-
-## 💖 Sponsors
-
-Thanks to [siliconflow.cn](https://siliconflow.cn) for providing free models in cooperation with us.
-
-## ✨ Features
-
-- 🎨 **Modern Design** - Material You design language with dynamic color theming support (Android 12+).
-- 🌙 **Dark Mode** - Perfectly adapted dark theme to protect your eyes.
-- 🌍 **Multi-language Support** - Supports both English and Chinese interfaces.
-- 🖥️ **Multi-platform Support** - Mobile (Android/iOS/Harmony) and Desktop (Windows/macOS/Linux).
-- 🔄 **Multi-provider Support** - Supports major AI providers like OpenAI, Google Gemini, Anthropic, etc.
-- 🤖 **Custom Assistants** - Create and manage personalized AI assistants.
-- 🖼️ **Multimodal Input** - Supports various formats including images, text documents, PDFs, Word documents, etc.
-- 📝 **Markdown Rendering** - Full support for code highlighting, LaTeX formulas, tables, and more.
-- 🎙️ **Voice/TTS Providers** - Built-in system TTS plus OpenAI / Google Gemini / ElevenLabs voice servers.
-- 🛠️ **MCP Support** - Model Context Protocol tool integration.
-- 🧰 **Built-in MCP Tools** - Includes a built-in MCP Fetch tool.
-- 🔍 **Web Search** - Integrated with multiple search engines (Bing, DuckDuckGo, Exa, Tavily, Zhipu, LinkUp, Brave, Metaso, SearXNG, Ollama, Jina, Perplexity, Bocha, Serper, Grok).
-- 🧩 **Prompt Variables** - Supports dynamic variables like model name, time, etc.
-- 📤 **QR Code Sharing** - Export and import provider configurations via QR codes.
-- 💾 **Data Backup** - Supports chat history backup and restoration.
-- 🌐 **Custom Requests** - Supports custom HTTP request headers and bodies.
-- 🔡 **Custom Fonts** - Bring your own fonts (system fonts / Google Fonts).
-- ⚙️ **Android Background Generation** - Keep chat generation running in the background (optional setting).
-
-## 📱 Platform Support
-
-- ✅ Android
-- ✅ iOS
-- ✅ Harmony ([nastechai-ohos](https://github.com/nastechai/nastechai-ohos))
-- ✅ Windows
-- ✅ macOS
-- ✅ Linux
-
-## 🤝 Contribution Guide
-
-Pull Requests and Issues are welcome!
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## ❤️ Acknowledgements
-
-Special thanks to the [RikkaHub](https://github.com/re-ovo/rikkahub) project for the UI design inspiration. NasTech AI's interface design is heavily inspired by RikkaHub's beautiful and practical design.
-
-## ⭐ Star History
-
-If you like this project, please give it a star ⭐
-
-[![Star History Chart](https://api.star-history.com/svg?repos=nastechai/nastechai-app&type=Date)](https://star-history.com/#nastechai/nastechai-app&Date)
-
-## 📄 License
-
-This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Contact Us
-
-- Issue: [GitHub Issues](https://github.com/nastechai/nastechai-app/issues)
 
 ---
 
-<div align="center">
-Made with ❤️ using Flutter
-</div>
+## 📥 Download
+
+| Platform | Link |
+|---|---|
+| 🤖 Android (APK) | [Latest Release](https://github.com/nastech-ai/nastechai/releases/latest) |
+| 🍎 iOS (IPA) | [Latest Release](https://github.com/nastech-ai/nastechai/releases/latest) |
+| 🖥️ macOS (DMG) | [Latest Release](https://github.com/nastech-ai/nastechai/releases/latest) |
+| 🪟 Windows (Installer) | [Latest Release](https://github.com/nastech-ai/nastechai/releases/latest) |
+| 🐧 Linux (tar.gz / DEB / RPM / AppImage) | [Latest Release](https://github.com/nastech-ai/nastechai/releases/latest) |
+| 🌐 Web | [Live App](https://nastech-ai.github.io/nastechai) |
+
+## ✨ Features
+
+- 🎨 **Material You Design** — Dynamic color theming, Android 12+ adaptive icons
+- 🌙 **Dark / Light Mode** — Full adaptive theme support
+- 🌍 **Multi-language** — English, Chinese and more
+- 🔄 **50+ AI Providers** — OpenAI, Gemini, Anthropic, DeepSeek, Ollama, and more
+- 🤖 **Custom Assistants** — Build and manage personalized AI assistants
+- 🖼️ **Multimodal Input** — Images, PDFs, Word docs, audio
+- 📝 **Markdown Rendering** — Code highlighting, LaTeX, tables
+- 🎙️ **Voice / TTS** — System TTS + OpenAI / Gemini / ElevenLabs
+- 🛠️ **MCP Tools** — Model Context Protocol integration with built-in Fetch
+- 🔍 **Web Search** — Bing, DuckDuckGo, Exa, Tavily, Perplexity, and more
+- 💾 **Data Backup** — Chat history backup and restore
+- 📱 **Live Activities** — iOS Dynamic Island / Lock Screen generation status
+- ⚙️ **Android Background** — Continue AI generation in the background
+
+## 🏗️ CI/CD
+
+All platforms build and release automatically via GitHub Actions:
+
+| Workflow | Status |
+|---|---|
+| Release All Platforms | [![Release All](https://github.com/nastech-ai/nastechai/actions/workflows/release-all.yml/badge.svg)](https://github.com/nastech-ai/nastechai/actions/workflows/release-all.yml) |
+| Linux ARM64 | [![ARM64](https://github.com/nastech-ai/nastechai/actions/workflows/build-linux-arm64.yml/badge.svg)](https://github.com/nastech-ai/nastechai/actions/workflows/build-linux-arm64.yml) |
+| Web Build | [![Web](https://github.com/nastech-ai/nastechai/actions/workflows/build-web.yml/badge.svg)](https://github.com/nastech-ai/nastechai/actions/workflows/build-web.yml) |
+| PR Checks | [![PR](https://github.com/nastech-ai/nastechai/actions/workflows/pr-check.yml/badge.svg)](https://github.com/nastech-ai/nastechai/actions/workflows/pr-check.yml) |
+
+## 🛠️ Build from Source
+
+```bash
+# Prerequisites: Flutter 3.x, Android SDK / Xcode / cmake
+git clone https://github.com/nastech-ai/nastechai.git
+cd nastechai
+flutter pub get
+flutter run
+```
+
+## 📄 License
+
+MIT © NasTech AI
