@@ -1,0 +1,166 @@
+name: 🤖 Build Status Reporter Bot
+
+on:
+  workflow_run:
+    workflows:
+      - "NasTech AI — Flutter Web Build"
+      - "Release All Platforms"
+      - "PR Checks"
+      - "NasTech AI — Flutter Build (master)"
+      - "NasTech AI — Flutter Build (stable)"
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  report:
+    name: Post build status report
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Fetch job details
+        id: jobs
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          if [ -z "$RUN_ID" ]; then
+            echo "No workflow_run event — skipping."
+            exit 0
+          fi
+
+          JOBS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs")
+
+          echo "$JOBS" > /tmp/jobs.json
+          echo "jobs_fetched=true" >> $GITHUB_OUTPUT
+
+      - name: Build status summary
+        if: steps.jobs.outputs.jobs_fetched == 'true'
+        run: |
+          CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+          WORKFLOW="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RUN_NUM="${{ github.event.workflow_run.run_number }}"
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          SHORT_SHA="${SHA:0:7}"
+
+          if [ "$CONCLUSION" = "success" ]; then
+            BADGE="✅"
+            STATUS_MSG="All jobs passed"
+          elif [ "$CONCLUSION" = "failure" ]; then
+            BADGE="❌"
+            STATUS_MSG="One or more jobs failed"
+          elif [ "$CONCLUSION" = "cancelled" ]; then
+            BADGE="⚠️"
+            STATUS_MSG="Run was cancelled"
+          else
+            BADGE="🔄"
+            STATUS_MSG="Status: $CONCLUSION"
+          fi
+
+          echo "## ${BADGE} Build Status Report — ${WORKFLOW}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**${STATUS_MSG}** on \`${BRANCH}\` @ [\`${SHORT_SHA}\`](https://github.com/${{ github.repository }}/commit/${SHA})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status | Duration |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|----------|" >> $GITHUB_STEP_SUMMARY
+
+          python3 <<'PYEOF'
+          import json, sys
+          from datetime import datetime
+
+          with open('/tmp/jobs.json') as f:
+              data = json.load(f)
+
+          for job in data.get('jobs', []):
+              name = job['name']
+              conclusion = job.get('conclusion') or job.get('status', 'unknown')
+              started = job.get('started_at')
+              completed = job.get('completed_at')
+
+              if conclusion == 'success':
+                  icon = '✅'
+              elif conclusion == 'failure':
+                  icon = '❌'
+              elif conclusion == 'skipped':
+                  icon = '⏭'
+              elif conclusion == 'cancelled':
+                  icon = '🚫'
+              elif conclusion == 'in_progress':
+                  icon = '🔄'
+              else:
+                  icon = '❓'
+
+              if started and completed:
+                  fmt = '%Y-%m-%dT%H:%M:%SZ'
+                  try:
+                      s = datetime.strptime(started, fmt)
+                      e = datetime.strptime(completed, fmt)
+                      secs = int((e - s).total_seconds())
+                      dur = f'{secs//60}m {secs%60}s'
+                  except:
+                      dur = '—'
+              else:
+                  dur = '—'
+
+              print(f'| {icon} {name} | {conclusion} | {dur} |')
+          PYEOF
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View full run](https://github.com/${{ github.repository }}/actions/runs/${RUN_ID})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$CONCLUSION" = "failure" ]; then
+            echo "### ❌ Failed Steps" >> $GITHUB_STEP_SUMMARY
+            python3 <<'PYEOF'
+          import json
+
+          with open('/tmp/jobs.json') as f:
+              data = json.load(f)
+
+          found = False
+          for job in data.get('jobs', []):
+              if job.get('conclusion') == 'failure':
+                  for step in job.get('steps', []):
+                      if step.get('conclusion') == 'failure':
+                          print(f"- **{job['name']}** → step `{step['name']}`")
+                          found = True
+          if not found:
+              print("_No individual step failures identified._")
+          PYEOF
+          fi
+
+      - name: Post commit status
+        if: steps.jobs.outputs.jobs_fetched == 'true'
+        run: |
+          CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW="${{ github.event.workflow_run.name }}"
+
+          if [ "$CONCLUSION" = "success" ]; then
+            GH_STATE="success"
+            DESC="All CI jobs passed"
+          elif [ "$CONCLUSION" = "failure" ]; then
+            GH_STATE="failure"
+            DESC="One or more CI jobs failed"
+          else
+            GH_STATE="error"
+            DESC="CI run: $CONCLUSION"
+          fi
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${SHA}" \
+            -d "{
+              \"state\": \"${GH_STATE}\",
+              \"target_url\": \"https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}\",
+              \"description\": \"${DESC}\",
+              \"context\": \"ci/${WORKFLOW}\"
+            }" > /dev/null
+          echo "Commit status posted: $GH_STATE"
