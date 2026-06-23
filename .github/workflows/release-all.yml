@@ -890,10 +890,39 @@ jobs:
           git config user.email "ci@nastechai.com"
           git remote set-url origin \
             https://x-access-token:${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git add -f build/web/
-          git diff --staged --quiet || \
+
+          # Save freshly built files before any git operations
+          cp -r build/web /tmp/web_build_artifact
+
+          MAX_RETRIES=5
+          for i in $(seq 1 $MAX_RETRIES); do
+            # Always start from the latest remote state
+            git fetch origin master
+            git reset --hard origin/master
+
+            # Restore the freshly built files on top of latest master
+            cp -r /tmp/web_build_artifact/. build/web/
+
+            git add -f build/web/
+            if git diff --staged --quiet; then
+              echo "No changes to commit — web build is identical to master."
+              exit 0
+            fi
+
             git commit -m "chore(web): build ${TAG} [skip ci]"
-          git push
+
+            if git push origin master; then
+              echo "Push succeeded on attempt $i."
+              exit 0
+            fi
+
+            echo "Push rejected on attempt $i/$MAX_RETRIES — another runner pushed first. Retrying in $((i * 3))s..."
+            git reset --soft HEAD^
+            sleep $((i * 3))
+          done
+
+          echo "All $MAX_RETRIES push attempts failed."
+          exit 1
 
       - name: Upload web artifact (ZIP)
         run: |
