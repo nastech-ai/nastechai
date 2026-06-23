@@ -129,7 +129,7 @@ jobs:
           done
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
@@ -203,7 +203,7 @@ jobs:
           zip -r ../../../NasTech_AI_ios_${VERSION}.ipa Payload
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
@@ -274,7 +274,7 @@ jobs:
           fi
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
@@ -428,7 +428,7 @@ jobs:
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer.iss"
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
@@ -702,7 +702,7 @@ jobs:
           docker run --rm -v "${PWD}:/work" -w /work fedora:43 bash -lc "dnf -y install ./${RPM_FILE}"
       - name: 🚀 发布到 Release
         if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.release_tag }}
           name: ${{ github.event.inputs.release_tag }}
