@@ -1,0 +1,99 @@
+name: 🤖 CI Watchdog — Auto-Retry Bot
+
+on:
+  workflow_run:
+    workflows:
+      - "NasTech AI — Flutter Web Build"
+      - "Release All Platforms"
+      - "PR Checks"
+      - "NasTech AI — Flutter Build (master)"
+      - "NasTech AI — Flutter Build (stable)"
+    types: [completed]
+
+jobs:
+  watchdog:
+    name: Auto-retry on failure
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.run_attempt < 3
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Log failure info
+        run: |
+          echo "## 🚨 CI Watchdog Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Workflow | ${{ github.event.workflow_run.name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run ID | ${{ github.event.workflow_run.id }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Attempt | ${{ github.event.workflow_run.run_attempt }} of 3 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.event.workflow_run.head_branch }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.event.workflow_run.head_sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔄 Scheduling automatic rerun of failed jobs..." >> $GITHUB_STEP_SUMMARY
+
+      - name: Wait before rerun (backoff)
+        run: |
+          ATTEMPT="${{ github.event.workflow_run.run_attempt }}"
+          WAIT=$((ATTEMPT * 30))
+          echo "Waiting ${WAIT}s before rerun (attempt $ATTEMPT)..."
+          sleep "$WAIT"
+
+      - name: Rerun failed jobs
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/rerun_response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/rerun-failed-jobs")
+
+          echo "API response (HTTP $HTTP_CODE):"
+          cat /tmp/rerun_response.json || true
+
+          if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "200" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Rerun triggered successfully** (HTTP $HTTP_CODE)" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 [View run](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Rerun API returned HTTP $HTTP_CODE**" >> $GITHUB_STEP_SUMMARY
+            echo "Manual intervention may be required." >> $GITHUB_STEP_SUMMARY
+            cat /tmp/rerun_response.json >> $GITHUB_STEP_SUMMARY || true
+          fi
+
+  alert-persistent-failure:
+    name: Alert on persistent failure (3rd attempt)
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.run_attempt >= 3
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Open GitHub Issue for persistent failure
+        run: |
+          TITLE="🚨 Persistent CI failure: ${{ github.event.workflow_run.name }}"
+          BODY="## Persistent CI Failure Detected\n\n\
+The following workflow has failed **3 times in a row** and was not auto-recovered.\n\n\
+| Field | Value |\n\
+|-------|-------|\n\
+| **Workflow** | ${{ github.event.workflow_run.name }} |\n\
+| **Run** | [#${{ github.event.workflow_run.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}) |\n\
+| **Branch** | \`${{ github.event.workflow_run.head_branch }}\` |\n\
+| **Commit** | \`${{ github.event.workflow_run.head_sha }}\` |\n\
+| **Triggered by** | ${{ github.event.workflow_run.triggering_actor.login }} |\n\n\
+### Action Required\n\nPlease investigate the failing build and fix the root cause.\n\n\
+🔗 [View failed run](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})"
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues" \
+            -d "{\"title\":\"${TITLE}\",\"body\":\"$(echo -e "$BODY")\",\"labels\":[\"ci-failure\",\"bug\"]}" \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Issue created:', d.get('html_url','error'))"
