@@ -1,0 +1,524 @@
+name: 🤖 Flutter Build Health Check
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6am UTC
+  workflow_dispatch:
+    inputs:
+      post_issue:
+        description: 'Open a GitHub Issue on failure'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  FLUTTER_VERSION: '3.44.1'
+
+# ─────────────────────────────────────────────────────────────
+# ANDROID
+# ─────────────────────────────────────────────────────────────
+jobs:
+  check-android:
+    name: Android (APK + AAB)
+    runs-on: ubuntu-latest
+    outputs:
+      status:   ${{ steps.result.outputs.status }}
+      duration: ${{ steps.result.outputs.duration }}
+      detail:   ${{ steps.result.outputs.detail }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: gradle
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Inject fallback key
+        run: |
+          mkdir -p lib/secrets
+          printf 'const String siliconflowFallbackKey = "";\n' > lib/secrets/fallback.dart
+
+      - name: Generate debug keystore
+        run: |
+          KS="$(pwd)/android/app/debug-ci.jks"
+          keytool -genkey -v -keystore "$KS" -alias nastechai \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass android123 -keypass android123 \
+            -dname "CN=NasTech CI, OU=Dev, O=NasTech, L=Unknown, S=Unknown, C=US"
+          printf "storeFile=%s\nstorePassword=android123\nkeyAlias=nastechai\nkeyPassword=android123\n" "$KS" \
+            > android/key.properties
+
+      - name: Build APK + AAB
+        id: result
+        run: |
+          START=$(date +%s)
+          set +e
+          flutter build apk --release --split-per-abi > /tmp/android_log.txt 2>&1
+          APK_STATUS=$?
+          flutter build appbundle --release >> /tmp/android_log.txt 2>&1
+          AAB_STATUS=$?
+          set -e
+          END=$(date +%s); SECS=$((END-START))
+          DUR="$((SECS/60))m $((SECS%60))s"
+
+          # Verify APK signing
+          BUILD_TOOLS=$(ls -d "$ANDROID_SDK_ROOT/build-tools"/* 2>/dev/null | sort -V | tail -1)
+          APKSIGNER="${BUILD_TOOLS}/apksigner"
+          SIGN_OK=true
+          for apk in build/app/outputs/flutter-apk/app-*-release.apk; do
+            "$APKSIGNER" verify "$apk" 2>/dev/null || SIGN_OK=false
+          done
+
+          if [ $APK_STATUS -eq 0 ] && [ $AAB_STATUS -eq 0 ] && [ "$SIGN_OK" = "true" ]; then
+            echo "status=success"   >> $GITHUB_OUTPUT
+            echo "duration=$DUR"    >> $GITHUB_OUTPUT
+            echo "detail=APK (arm64/armeabi/x86_64) + AAB — signed ✅" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure"   >> $GITHUB_OUTPUT
+            echo "duration=$DUR"    >> $GITHUB_OUTPUT
+            if [ "$SIGN_OK" = "false" ]; then
+              echo "detail=APK signature verification failed" >> $GITHUB_OUTPUT
+            else
+              echo "detail=Build error — see logs" >> $GITHUB_OUTPUT
+            fi
+            tail -40 /tmp/android_log.txt
+            exit 1
+          fi
+
+# ─────────────────────────────────────────────────────────────
+# iOS
+# ─────────────────────────────────────────────────────────────
+  check-ios:
+    name: iOS (IPA no-codesign)
+    runs-on: macos-latest
+    outputs:
+      status:   ${{ steps.result.outputs.status }}
+      duration: ${{ steps.result.outputs.duration }}
+      detail:   ${{ steps.result.outputs.detail }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter config --no-enable-swift-package-manager
+
+      - name: Inject fallback key
+        run: |
+          mkdir -p lib/secrets
+          printf 'const String siliconflowFallbackKey = "";\n' > lib/secrets/fallback.dart
+
+      - name: CocoaPods install
+        run: cd ios && pod install --repo-update
+
+      - name: Build iOS
+        id: result
+        run: |
+          START=$(date +%s)
+          set +e
+          flutter build ios --release --no-codesign > /tmp/ios_log.txt 2>&1
+          STATUS=$?
+          set -e
+          END=$(date +%s); SECS=$((END-START))
+          DUR="$((SECS/60))m $((SECS%60))s"
+          if [ $STATUS -eq 0 ]; then
+            echo "status=success"                    >> $GITHUB_OUTPUT
+            echo "duration=$DUR"                     >> $GITHUB_OUTPUT
+            echo "detail=Runner.app built (no-codesign)" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "duration=$DUR"  >> $GITHUB_OUTPUT
+            echo "detail=Build error — see logs"     >> $GITHUB_OUTPUT
+            tail -40 /tmp/ios_log.txt
+            exit 1
+          fi
+
+# ─────────────────────────────────────────────────────────────
+# macOS
+# ─────────────────────────────────────────────────────────────
+  check-macos:
+    name: macOS (DMG)
+    runs-on: macos-latest
+    outputs:
+      status:   ${{ steps.result.outputs.status }}
+      duration: ${{ steps.result.outputs.duration }}
+      detail:   ${{ steps.result.outputs.detail }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter config --no-enable-swift-package-manager
+
+      - name: Inject fallback key
+        run: |
+          mkdir -p lib/secrets
+          printf 'const String siliconflowFallbackKey = "";\n' > lib/secrets/fallback.dart
+
+      - name: Build macOS
+        id: result
+        run: |
+          START=$(date +%s)
+          set +e
+          flutter build macos --release > /tmp/macos_log.txt 2>&1
+          STATUS=$?
+          set -e
+          END=$(date +%s); SECS=$((END-START))
+          DUR="$((SECS/60))m $((SECS%60))s"
+          if [ $STATUS -eq 0 ]; then
+            echo "status=success"              >> $GITHUB_OUTPUT
+            echo "duration=$DUR"               >> $GITHUB_OUTPUT
+            echo "detail=nastechai.app built"  >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "duration=$DUR"  >> $GITHUB_OUTPUT
+            echo "detail=Build error — see logs" >> $GITHUB_OUTPUT
+            tail -40 /tmp/macos_log.txt
+            exit 1
+          fi
+
+# ─────────────────────────────────────────────────────────────
+# WINDOWS
+# ─────────────────────────────────────────────────────────────
+  check-windows:
+    name: Windows (EXE)
+    runs-on: windows-latest
+    outputs:
+      status:   ${{ steps.result.outputs.status }}
+      duration: ${{ steps.result.outputs.duration }}
+      detail:   ${{ steps.result.outputs.detail }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: lukka/get-cmake@latest
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Inject fallback key
+        shell: bash
+        run: |
+          mkdir -p lib/secrets
+          printf 'const String siliconflowFallbackKey = "";\n' > lib/secrets/fallback.dart
+
+      - run: flutter pub get
+
+      - name: Build Windows
+        id: result
+        shell: pwsh
+        run: |
+          $START = Get-Date
+          $proc = Start-Process flutter -ArgumentList "build","windows","--release" `
+            -NoNewWindow -PassThru -RedirectStandardOutput "C:\windows_log.txt" `
+            -RedirectStandardError "C:\windows_err.txt" -Wait
+          $STATUS = $proc.ExitCode
+          $SECS   = [int]((Get-Date) - $START).TotalSeconds
+          $DUR    = "$($SECS/60 -as [int])m $($SECS%60)s"
+          if ($STATUS -eq 0) {
+            echo "status=success"                   >> $env:GITHUB_OUTPUT
+            echo "duration=$DUR"                    >> $env:GITHUB_OUTPUT
+            echo "detail=nastechai.exe built"       >> $env:GITHUB_OUTPUT
+          } else {
+            echo "status=failure"  >> $env:GITHUB_OUTPUT
+            echo "duration=$DUR"   >> $env:GITHUB_OUTPUT
+            echo "detail=Build error — see logs"    >> $env:GITHUB_OUTPUT
+            Get-Content "C:\windows_log.txt" -Tail 40
+            Get-Content "C:\windows_err.txt" -Tail 20
+            exit 1
+          }
+
+# ─────────────────────────────────────────────────────────────
+# LINUX x64
+# ─────────────────────────────────────────────────────────────
+  check-linux:
+    name: Linux x64 (tar.gz)
+    runs-on: ubuntu-22.04
+    outputs:
+      status:   ${{ steps.result.outputs.status }}
+      duration: ${{ steps.result.outputs.duration }}
+      detail:   ${{ steps.result.outputs.detail }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            clang cmake ninja-build pkg-config libgtk-3-dev \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            libkeybinder-3.0-dev libayatana-appindicator3-dev
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Inject fallback key
+        run: |
+          mkdir -p lib/secrets
+          printf 'const String siliconflowFallbackKey = "";\n' > lib/secrets/fallback.dart
+
+      - name: Build Linux
+        id: result
+        run: |
+          START=$(date +%s)
+          set +e
+          flutter build linux --release > /tmp/linux_log.txt 2>&1
+          STATUS=$?
+          set -e
+          END=$(date +%s); SECS=$((END-START))
+          DUR="$((SECS/60))m $((SECS%60))s"
+          if [ $STATUS -eq 0 ]; then
+            echo "status=success"           >> $GITHUB_OUTPUT
+            echo "duration=$DUR"            >> $GITHUB_OUTPUT
+            echo "detail=nastechai bundle built" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "duration=$DUR"  >> $GITHUB_OUTPUT
+            echo "detail=Build error — see logs" >> $GITHUB_OUTPUT
+            tail -40 /tmp/linux_log.txt
+            exit 1
+          fi
+
+# ─────────────────────────────────────────────────────────────
+# WEB
+# ─────────────────────────────────────────────────────────────
+  check-web:
+    name: Web (Flutter Web)
+    runs-on: ubuntu-latest
+    outputs:
+      status:   ${{ steps.result.outputs.status }}
+      duration: ${{ steps.result.outputs.duration }}
+      detail:   ${{ steps.result.outputs.detail }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Inject fallback key
+        run: |
+          mkdir -p lib/secrets
+          printf 'const String siliconflowFallbackKey = "";\n' > lib/secrets/fallback.dart
+
+      - name: Build Web
+        id: result
+        run: |
+          START=$(date +%s)
+          set +e
+          flutter build web --release > /tmp/web_log.txt 2>&1
+          STATUS=$?
+          set -e
+          END=$(date +%s); SECS=$((END-START))
+          DUR="$((SECS/60))m $((SECS%60))s"
+          if [ $STATUS -eq 0 ]; then
+            SIZE=$(du -sh build/web 2>/dev/null | cut -f1 || echo "?")
+            echo "status=success"              >> $GITHUB_OUTPUT
+            echo "duration=$DUR"               >> $GITHUB_OUTPUT
+            echo "detail=build/web (${SIZE})"  >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "duration=$DUR"  >> $GITHUB_OUTPUT
+            echo "detail=Build error — see logs" >> $GITHUB_OUTPUT
+            tail -40 /tmp/web_log.txt
+            exit 1
+          fi
+
+# ─────────────────────────────────────────────────────────────
+# HEALTH REPORT — runs last, always
+# ─────────────────────────────────────────────────────────────
+  health-report:
+    name: 🤖 Health Dashboard
+    needs:
+      - check-android
+      - check-ios
+      - check-macos
+      - check-windows
+      - check-linux
+      - check-web
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Build dashboard & post report
+        env:
+          GH_TOKEN:          ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO:              ${{ github.repository }}
+          RUN_ID:            ${{ github.run_id }}
+          RUN_URL:           ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          FLUTTER_VERSION:   ${{ env.FLUTTER_VERSION }}
+          POST_ISSUE:        ${{ github.event.inputs.post_issue || 'true' }}
+
+          AND_STATUS:   ${{ needs.check-android.outputs.status }}
+          AND_DUR:      ${{ needs.check-android.outputs.duration }}
+          AND_DETAIL:   ${{ needs.check-android.outputs.detail }}
+
+          IOS_STATUS:   ${{ needs.check-ios.outputs.status }}
+          IOS_DUR:      ${{ needs.check-ios.outputs.duration }}
+          IOS_DETAIL:   ${{ needs.check-ios.outputs.detail }}
+
+          MAC_STATUS:   ${{ needs.check-macos.outputs.status }}
+          MAC_DUR:      ${{ needs.check-macos.outputs.duration }}
+          MAC_DETAIL:   ${{ needs.check-macos.outputs.detail }}
+
+          WIN_STATUS:   ${{ needs.check-windows.outputs.status }}
+          WIN_DUR:      ${{ needs.check-windows.outputs.duration }}
+          WIN_DETAIL:   ${{ needs.check-windows.outputs.detail }}
+
+          LIN_STATUS:   ${{ needs.check-linux.outputs.status }}
+          LIN_DUR:      ${{ needs.check-linux.outputs.duration }}
+          LIN_DETAIL:   ${{ needs.check-linux.outputs.detail }}
+
+          WEB_STATUS:   ${{ needs.check-web.outputs.status }}
+          WEB_DUR:      ${{ needs.check-web.outputs.duration }}
+          WEB_DETAIL:   ${{ needs.check-web.outputs.detail }}
+
+        run: |
+          python3 - <<'PYEOF'
+          import os, json, subprocess
+          from datetime import datetime, timezone
+
+          platforms = [
+              ("🤖 Android",  os.environ["AND_STATUS"], os.environ["AND_DUR"], os.environ["AND_DETAIL"]),
+              ("🍎 iOS",      os.environ["IOS_STATUS"], os.environ["IOS_DUR"], os.environ["IOS_DETAIL"]),
+              ("🍎 macOS",    os.environ["MAC_STATUS"], os.environ["MAC_DUR"], os.environ["MAC_DETAIL"]),
+              ("🪟 Windows",  os.environ["WIN_STATUS"], os.environ["WIN_DUR"], os.environ["WIN_DETAIL"]),
+              ("🐧 Linux",    os.environ["LIN_STATUS"], os.environ["LIN_DUR"], os.environ["LIN_DETAIL"]),
+              ("🌐 Web",      os.environ["WEB_STATUS"], os.environ["WEB_DUR"], os.environ["WEB_DETAIL"]),
+          ]
+
+          total   = len(platforms)
+          passed  = sum(1 for _, s, _, _ in platforms if s == "success")
+          failed  = total - passed
+          all_ok  = failed == 0
+
+          icon    = "✅" if all_ok else "❌"
+          now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          flutter = os.environ["FLUTTER_VERSION"]
+          run_url = os.environ["RUN_URL"]
+          repo    = os.environ["REPO"]
+          token   = os.environ["GH_TOKEN"]
+
+          # ── Step Summary ─────────────────────────────────
+          summary_lines = [
+              f"## {icon} NasTech AI — Flutter Build Health ({now_utc})",
+              "",
+              f"> Flutter `{flutter}` · {passed}/{total} platforms passing · [Full run]({run_url})",
+              "",
+              "| Platform | Status | Duration | Detail |",
+              "|----------|--------|----------|--------|",
+          ]
+          for name, status, dur, detail in platforms:
+              badge = "✅ pass" if status == "success" else ("❌ FAIL" if status == "failure" else "⚠️ skip")
+              summary_lines.append(f"| {name} | {badge} | {dur} | {detail} |")
+
+          summary_lines += ["", "---", ""]
+          if all_ok:
+              summary_lines.append("**🎉 All platforms are healthy!**")
+          else:
+              failing = [n for n, s, _, _ in platforms if s != "success"]
+              summary_lines.append(f"**Failed platforms:** {', '.join(failing)}")
+
+          summary = "\n".join(summary_lines)
+
+          summary_file = os.environ.get("GITHUB_STEP_SUMMARY", "/dev/null")
+          with open(summary_file, "a") as f:
+              f.write(summary + "\n")
+
+          print(summary)
+
+          # ── GitHub Issue management ───────────────────────
+          post_issue = os.environ.get("POST_ISSUE", "true").lower() == "true"
+          if not post_issue:
+              print("Skipping issue creation (post_issue=false)")
+              exit(0)
+
+          LABEL = "build-health"
+          TITLE_PREFIX = "🚨 Flutter Build Health Failure"
+
+          def api(method, path, payload=None):
+              cmd = ["curl", "-s", f"-X{method}",
+                     "-H", f"Authorization: Bearer {token}",
+                     "-H", "Accept: application/vnd.github+json",
+                     f"https://api.github.com/repos/{repo}{path}"]
+              if payload:
+                  cmd += ["-d", json.dumps(payload)]
+              r = subprocess.run(cmd, capture_output=True, text=True)
+              return json.loads(r.stdout) if r.stdout else {}
+
+          # Ensure the label exists
+          api("POST", "/labels", {"name": LABEL, "color": "d93f0b", "description": "Automated build health failure"})
+
+          # Find existing open health-failure issue
+          existing = api("GET", f"/issues?labels={LABEL}&state=open&per_page=5")
+          open_issue = next((i for i in (existing if isinstance(existing, list) else [])
+                             if TITLE_PREFIX in i.get("title", "")), None)
+
+          if all_ok:
+              if open_issue:
+                  # Close and comment on the resolved issue
+                  api("PATCH", f"/issues/{open_issue['number']}", {"state": "closed"})
+                  api("POST",  f"/issues/{open_issue['number']}/comments", {
+                      "body": f"## ✅ Build Health Restored\n\n"
+                              f"All {total}/{total} platforms passed on {now_utc}.\n\n"
+                              f"[View run]({run_url})"
+                  })
+                  print(f"Closed issue #{open_issue['number']}")
+              else:
+                  print("All green — no issue to open or close.")
+          else:
+              # Build issue body
+              rows = "\n".join(
+                  f"| {n} | {'✅ pass' if s == 'success' else '❌ FAIL'} | {d} | {det} |"
+                  for n, s, d, det in platforms
+              )
+              body = (
+                  f"## {icon} Flutter Build Health Failure\n\n"
+                  f"**{failed} of {total} platforms failed** — {now_utc}\n\n"
+                  f"| Platform | Status | Duration | Detail |\n"
+                  f"|----------|--------|----------|--------|\n"
+                  f"{rows}\n\n"
+                  f"### Failed platforms\n"
+                  + "\n".join(f"- **{n}**: {det}" for n, s, _, det in platforms if s != "success")
+                  + f"\n\n[🔗 View full run]({run_url})\n\n"
+                    f"---\n_Auto-opened by Flutter Health Check bot. "
+                    f"Will auto-close when all builds pass._"
+              )
+
+              if open_issue:
+                  # Add a comment to the existing issue
+                  api("POST", f"/issues/{open_issue['number']}/comments", {"body": body})
+                  print(f"Updated existing issue #{open_issue['number']}")
+              else:
+                  result = api("POST", "/issues", {
+                      "title": f"{TITLE_PREFIX} — {now_utc}",
+                      "body":  body,
+                      "labels": [LABEL],
+                  })
+                  print(f"Opened issue: {result.get('html_url', 'error')}")
+
+          PYEOF
