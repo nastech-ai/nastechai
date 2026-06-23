@@ -8,6 +8,7 @@ on:
       - "PR Checks"
       - "NasTech AI — Flutter Build (master)"
       - "NasTech AI — Flutter Build (stable)"
+      - "🤖 Flutter Build Health Check"
     types: [completed]
   workflow_dispatch:
 
