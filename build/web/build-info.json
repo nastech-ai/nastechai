@@ -1,8 +1,8 @@
 {
   "app": "NasTech AI",
   "packageId": "com.nastechai.app",
-  "version": "v1.02",
-  "commit": "1c2e5e072de70e0f274ec6c49a2a24af021de256",
-  "builtAt": "2026-06-23T07:25:12Z",
+  "version": "v1.1.17",
+  "commit": "30692bb607928e8e5eea04ff37d74563bf463c0b",
+  "builtAt": "2026-06-23T09:37:15Z",
   "branch": "master"
 }
