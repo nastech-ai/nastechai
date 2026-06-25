@@ -57,6 +57,7 @@ class SettingsProvider extends ChangeNotifier {
       'provider_ungrouped_position_v1'; // display index among groups
   static const String providerUngroupedGroupKey = '__ungrouped__';
   static const List<String> _builtInProviderKeysInOrder = [
+    'NasTech Agent',
     'OpenAI',
     'SiliconFlow',
     'Gemini',
@@ -1252,6 +1253,7 @@ class SettingsProvider extends ChangeNotifier {
     if (_providerConfigs.isEmpty) {
       // Seed a couple of sensible defaults on first launch, but do not recreate
       // providers implicitly during later reads (e.g., when switching chats).
+      ensureProviderConfig('NasTech Agent', defaultName: 'NasTech Agent');
       ensureProviderConfig('NasTech AIIN', defaultName: 'NasTech AIIN');
       ensureProviderConfig('Tensdaq', defaultName: 'Tensdaq');
       ensureProviderConfig('SiliconFlow', defaultName: 'SiliconFlow');
@@ -4502,7 +4504,7 @@ class _SocksProxyHttpOverrides extends HttpOverrides {
   }
 }
 
-enum ProviderKind { openai, google, claude }
+enum ProviderKind { openai, google, claude, nastechAgent }
 
 // Background rendering mode for chat message bubbles
 enum ChatMessageBackgroundStyle { defaultStyle, frosted, solid }
@@ -4790,6 +4792,9 @@ class ProviderConfig {
 
     // Otherwise, infer from the key
     final k = key.toLowerCase();
+    if (k.contains('nastechagent') || k == 'nastech agent') {
+      return ProviderKind.nastechAgent;
+    }
     if (k.contains('gemini') || k.contains('google')) {
       return ProviderKind.google;
     }
@@ -4872,6 +4877,30 @@ class ProviderConfig {
           balanceEnabled: false,
           balanceApiPath: '/credits',
           balanceResultPath: 'data.total_usage',
+          claudePromptCachingEnabled: false,
+        );
+      case ProviderKind.nastechAgent:
+        return ProviderConfig(
+          id: key,
+          enabled: false,
+          name: displayName ?? 'NasTech Agent',
+          apiKey: '',
+          baseUrl: '',
+          providerType: ProviderKind.nastechAgent,
+          models: const ['nastech-agent'],
+          modelOverrides: const {},
+          proxyEnabled: false,
+          proxyHost: '',
+          proxyPort: '8080',
+          proxyUsername: '',
+          proxyPassword: '',
+          multiKeyEnabled: false,
+          apiKeys: const [],
+          keyManagement: const KeyManagementConfig(),
+          aihubmixAppCodeEnabled: false,
+          balanceEnabled: false,
+          balanceApiPath: '',
+          balanceResultPath: '',
           claudePromptCachingEnabled: false,
         );
       case ProviderKind.claude:

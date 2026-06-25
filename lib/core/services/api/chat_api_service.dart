@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:uuid/uuid.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -33,6 +34,7 @@ part 'providers/google_common.dart';
 part 'providers/google_gemini.dart';
 part 'providers/google_vertex.dart';
 part 'providers/claude_official.dart';
+part 'providers/nastech_agent.dart';
 
 typedef ToolCallHandler =
     Future<String> Function(
@@ -597,7 +599,14 @@ class ChatApiService {
     final client = _clientFor(config, cancelToken);
 
     try {
-      if (kind == ProviderKind.openai) {
+      if (kind == ProviderKind.nastechAgent) {
+        yield* _sendNasTechAgentStream(
+          config,
+          modelId,
+          messages,
+          requestId: requestId,
+        );
+      } else if (kind == ProviderKind.openai) {
         if (useOpenAIImagesApi) {
           yield* _sendOpenAIImagesStream(
             client,

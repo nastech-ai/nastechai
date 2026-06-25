@@ -14,6 +14,7 @@ import 'sponsor_page.dart';
 import 'log_viewer_page.dart';
 import '../../search/pages/search_services_page.dart';
 import '../../backup/pages/backup_page.dart';
+import '../../agent/pages/nastech_agent_page.dart';
 import '../../quick_phrase/pages/quick_phrases_page.dart';
 import '../../instruction_injection/pages/instruction_injection_page.dart';
 import '../../world_book/pages/world_book_page.dart';
@@ -192,6 +193,20 @@ class SettingsPage extends StatelessWidget {
           header(l10n.settingsPageModelsServicesSection),
           _iosSectionCard(
             children: [
+              _iosNavRow(
+                context,
+                icon: Icons.bolt,
+                label: 'NasTech Agent',
+                detailText: 'Brain',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const NasTechAgentPage(),
+                    ),
+                  );
+                },
+              ),
+              _iosDivider(context),
               _iosNavRow(
                 context,
                 icon: Lucide.Heart,
