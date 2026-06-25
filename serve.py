@@ -555,11 +555,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-if not os.path.isdir(WEB_DIR):
-    print(f"WARNING: build/web not found — serving landing page.")
-    tmp = tempfile.mkdtemp()
-    pathlib.Path(tmp, "index.html").write_text(LANDING_HTML)
-    WEB_DIR = tmp
+tmp = tempfile.mkdtemp()
+pathlib.Path(tmp, "index.html").write_text(LANDING_HTML)
+WEB_DIR = tmp
+print("Serving NasTech AI landing page.")
 
 os.chdir(WEB_DIR)
 
