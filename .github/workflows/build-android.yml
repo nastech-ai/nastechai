@@ -7,34 +7,20 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-  pull_request:
-    branches:
-      - Android
   workflow_dispatch:
     inputs:
-      publish_release:
-        description: 'Publish to GitHub Release'
-        required: false
-        default: false
-        type: boolean
       release_tag:
-        description: 'Release tag (e.g. v1.2.3)'
+        description: 'Override release tag (leave blank to use pubspec version)'
         required: false
         default: ''
         type: string
-      build_bundle:
-        description: 'Also build AAB (Play Store bundle)'
-        required: false
-        default: false
-        type: boolean
 
 env:
   FLUTTER_CHANNEL: 'master'
 
 jobs:
   build-android:
-    name: 🤖 Build Android APK
+    name: 🤖 Build & Release Android APK
     runs-on: ubuntu-latest
     permissions: write-all
 
@@ -71,10 +57,15 @@ jobs:
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
           VERSION_NAME=$(echo "$VERSION" | cut -d'+' -f1)
           VERSION_CODE=$(echo "$VERSION" | cut -d'+' -f2)
+          TAG="${{ github.event.inputs.release_tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="v${VERSION_NAME}"
+          fi
           echo "VERSION=$VERSION"           >> $GITHUB_ENV
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
           echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-          echo "✅ Version: $VERSION_NAME ($VERSION_CODE)"
+          echo "RELEASE_TAG=$TAG"           >> $GITHUB_ENV
+          echo "✅ Version: $VERSION_NAME+$VERSION_CODE  →  Release tag: $TAG"
 
       - name: 🔏 Configure signing (if secrets are set)
         env:
@@ -89,112 +80,81 @@ jobs:
               echo "keyAlias=${{ secrets.KEY_ALIAS }}"
               echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
             } > android/key.properties
-            echo "✅ Signing keystore configured"
+            echo "✅ Signing keystore configured — APKs will be signed"
           else
-            echo "ℹ️ No signing secrets found — building unsigned release"
+            echo "ℹ️  No signing secrets — building unsigned release APKs"
           fi
 
-      - name: 🏗️ Build APK (split per ABI)
+      - name: 🏗️ Build split APKs (per ABI)
         run: flutter build apk --release --split-per-abi
 
-      - name: 🏗️ Build Universal APK
+      - name: 🏗️ Build universal APK
         run: flutter build apk --release
 
-      - name: 🏗️ Build AAB (Play Store bundle)
-        if: ${{ github.event.inputs.build_bundle == 'true' }}
-        run: flutter build appbundle --release
-
-      - name: 📦 Rename output files
+      - name: 📦 Rename APKs to NasTech AI brand
         run: |
           cd build/app/outputs/flutter-apk
-          echo "=== Files before rename ==="
-          ls -lh *.apk
-          # Rename split APKs
           for file in app-*-release.apk; do
             abi=$(echo "$file" | sed -E 's/app-(.*)-release\.apk/\1/')
             mv "$file" "NasTech_AI_${VERSION_NAME}_android_${abi}.apk"
           done
-          # Rename universal APK
-          if [ -f "app-release.apk" ]; then
-            mv app-release.apk "NasTech_AI_${VERSION_NAME}_android_universal.apk"
-          fi
-          echo "=== Files after rename ==="
+          [ -f app-release.apk ] && mv app-release.apk "NasTech_AI_${VERSION_NAME}_android_universal.apk"
+          echo "=== Built APKs ==="
           ls -lh *.apk
 
-      - name: 📤 Upload arm64-v8a APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: NasTech-AI-android-arm64-v8a
-          path: build/app/outputs/flutter-apk/NasTech_AI_*_android_arm64-v8a.apk
-          retention-days: 30
-
-      - name: 📤 Upload armeabi-v7a APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: NasTech-AI-android-armeabi-v7a
-          path: build/app/outputs/flutter-apk/NasTech_AI_*_android_armeabi-v7a.apk
-          retention-days: 30
-
-      - name: 📤 Upload x86_64 APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: NasTech-AI-android-x86_64
-          path: build/app/outputs/flutter-apk/NasTech_AI_*_android_x86_64.apk
-          retention-days: 30
-
-      - name: 📤 Upload Universal APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: NasTech-AI-android-universal
-          path: build/app/outputs/flutter-apk/NasTech_AI_*_android_universal.apk
-          retention-days: 30
-
-      - name: 📤 Upload AAB
-        if: ${{ github.event.inputs.build_bundle == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: NasTech-AI-android-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 30
-
-      - name: 🚀 Publish to GitHub Release
-        if: ${{ github.event.inputs.publish_release == 'true' && github.event.inputs.release_tag != '' }}
+      - name: 🚀 Create / update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.release_tag }}
-          name: 'NasTech AI ${{ github.event.inputs.release_tag }}'
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: "NasTech AI ${{ env.RELEASE_TAG }}"
           body: |
-            ## NasTech AI ${{ github.event.inputs.release_tag }} — Android
+            ## NasTech AI ${{ env.RELEASE_TAG }} — Android
 
-            ### Download
-            | Architecture | File |
+            **Built from branch:** `Android`
+            **Version code:** ${{ env.VERSION_CODE }}
+            **Commit:** ${{ github.sha }}
+
+            ---
+
+            ### 📲 Which APK should I download?
+
+            | File | Best for |
             |---|---|
-            | ARM64 (most phones) | `NasTech_AI_*_android_arm64-v8a.apk` |
-            | ARM32 (older phones) | `NasTech_AI_*_android_armeabi-v7a.apk` |
-            | x86_64 (emulators) | `NasTech_AI_*_android_x86_64.apk` |
-            | Universal | `NasTech_AI_*_android_universal.apk` |
+            | `…_arm64-v8a.apk` | ✅ Most modern phones (2017+) |
+            | `…_armeabi-v7a.apk` | Older / 32-bit phones |
+            | `…_x86_64.apk` | Emulators / Intel Chromebooks |
+            | `…_universal.apk` | Any device (larger file) |
 
-            > **Tip:** For most modern Android phones, download the **arm64-v8a** APK.
+            > **Tip:** Download **arm64-v8a** unless your device is very old.
+
+            ---
+
+            ### ⚡ NasTech Agent
+            Connect your own NasTech Agent: **Settings → NasTech Agent** → enter your agent URL.
+          draft: false
+          prerelease: false
           files: build/app/outputs/flutter-apk/NasTech_AI_*_android_*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Quick build summary comment on PRs
-  build-summary:
-    name: 📊 Build Summary
-    runs-on: ubuntu-latest
-    needs: build-android
-    if: always()
-    steps:
-      - name: 📊 Summary
+      - name: 📤 Also upload as workflow artifact (30-day backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: NasTech-AI-${{ env.VERSION_NAME }}-android-apks
+          path: build/app/outputs/flutter-apk/NasTech_AI_*_android_*.apk
+          retention-days: 30
+
+      - name: 📊 Build summary
         run: |
-          if [ "${{ needs.build-android.result }}" == "success" ]; then
-            echo "## ✅ Android Build Succeeded" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**App:** NasTech AI" >> $GITHUB_STEP_SUMMARY
-            echo "**Package:** com.nastechai.app" >> $GITHUB_STEP_SUMMARY
-            echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Download the APKs from the **Artifacts** section above." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "## ❌ Android Build Failed" >> $GITHUB_STEP_SUMMARY
-            echo "Check the logs in the **build-android** job above." >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "## ✅ NasTech AI Android Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** [${{ env.RELEASE_TAG }}](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** \`com.nastechai.app\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ env.VERSION_NAME }}+${{ env.VERSION_CODE }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| APK | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          for f in build/app/outputs/flutter-apk/NasTech_AI_*_android_*.apk; do
+            SIZE=$(du -sh "$f" | cut -f1)
+            NAME=$(basename "$f")
+            echo "| \`$NAME\` | $SIZE |" >> $GITHUB_STEP_SUMMARY
+          done
